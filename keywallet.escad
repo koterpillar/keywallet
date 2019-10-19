@@ -1,0 +1,20 @@
+unit("mm") {
+  linear_extrude(height=1.2) {
+    difference(r=3) {
+      difference() {
+        square([105,55], r=5);
+        union() {
+          translate([5,12.5]) circle(2);
+          translate([100,12.5]) circle(2);
+          translate([5,42.5]) circle(2);
+          translate([100,42.5]) circle(2);
+        }
+      }
+      union() {
+        polygon([(35,0),(40,15),(65,15),(70,0)], r=3);
+        polygon([(35,55),(40,40),(65,40),(70,55)], r=3);
+      }
+    }
+  }
+}
+
