@@ -1,10 +1,13 @@
 width=105;
 height=55;
+plate_rounding=5;
 hole_x=5;
 hole_y=12.5;
+hole_radius=2;
 notch_width=25;
 notch_depth=15;
 notch_slant_width=5;
+notch_rounding=2;
 support_x=40;
 support_width=5;
 support_height=25;
@@ -17,15 +20,15 @@ asymmetry_rounding=0.5;
 unit("mm") {
   union() {
     linear_extrude(height=plate_thickness) {
-      difference(r=3) {
+      difference(r=notch_rounding) {
         difference(r=asymmetry_rounding) {
           difference() {
-            square([width,height], r=5);
+            square([width,height], r=plate_rounding);
             union() {
-              translate([hole_x,hole_y]) circle(2);
-              translate([width-hole_x,hole_y]) circle(2);
-              translate([hole_x,height-hole_y]) circle(2);
-              translate([width-hole_x,height-hole_y]) circle(2);
+              translate([hole_x,hole_y]) circle(hole_radius);
+              translate([width-hole_x,hole_y]) circle(hole_radius);
+              translate([hole_x,height-hole_y]) circle(hole_radius);
+              translate([width-hole_x,height-hole_y]) circle(hole_radius);
             }
           }
           union() {
@@ -36,18 +39,24 @@ unit("mm") {
         }
         union() {
           notch_left_x=(width-notch_width)/2-notch_slant_width;
-          polygon([
-              (notch_left_x,0),
-              (notch_left_x+notch_slant_width,notch_depth),
-              (width-notch_left_x-notch_slant_width,notch_depth),
-              (width-notch_left_x,0)
-          ]);
-          polygon([
-              (notch_left_x,height),
-              (notch_left_x+notch_slant_width,height-notch_depth),
-              (width-notch_left_x-notch_slant_width,height-notch_depth),
-              (width-notch_left_x,height)
-          ]);
+          difference(r=notch_rounding) {
+            polygon([
+                (notch_left_x,0),
+                (notch_left_x+notch_slant_width*2,notch_depth*2),
+                (width-notch_left_x-notch_slant_width*2,notch_depth*2),
+                (width-notch_left_x,0)
+            ]);
+            translate([notch_left_x+notch_slant_width,notch_depth]) square([notch_width+notch_slant_width*2,notch_depth]);
+          }
+          difference(r=notch_rounding) {
+            polygon([
+                (notch_left_x,height),
+                (notch_left_x+notch_slant_width*2,height-notch_depth*2),
+                (width-notch_left_x-notch_slant_width*2,height-notch_depth*2),
+                (width-notch_left_x,height)
+            ]);
+            translate([notch_left_x+notch_slant_width,height-notch_depth*2]) square([notch_width+notch_slant_width*2,notch_depth]);
+          }
         }
       }
     }
