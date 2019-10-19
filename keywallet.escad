@@ -1,20 +1,35 @@
 unit("mm") {
-  linear_extrude(height=1.2) {
-    difference(r=3) {
-      difference() {
-        square([105,55], r=5);
+  union() {
+    linear_extrude(height=1.2) {
+      difference(r=3) {
+        difference(r=0.5) {
+          difference() {
+            square([105,55], r=5);
+            union() {
+              translate([5,12.5]) circle(2);
+              translate([100,12.5]) circle(2);
+              translate([5,42.5]) circle(2);
+              translate([100,42.5]) circle(2);
+
+            }
+          }
+          union() {
+            translate([10,0]) square(1.5);
+            translate([14,0]) square(1.5);
+            translate([18,0]) square(1.5);
+          }
+        }
         union() {
-          translate([5,12.5]) circle(2);
-          translate([100,12.5]) circle(2);
-          translate([5,42.5]) circle(2);
-          translate([100,42.5]) circle(2);
+          polygon([(35,0),(40,15),(65,15),(70,0)], r=3);
+          polygon([(35,55),(40,40),(65,40),(70,55)], r=3);
         }
       }
+    }
+    linear_extrude(height=1.2+4.5) {
       union() {
-        polygon([(35,0),(40,15),(65,15),(70,0)], r=3);
-        polygon([(35,55),(40,40),(65,40),(70,55)], r=3);
+        translate([40,15]) square([5,25], r=1);
+        translate([60,15]) square([5,25], r=1);
       }
     }
   }
 }
-
