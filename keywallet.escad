@@ -2,10 +2,18 @@ width=105;
 height=55;
 hole_x=5;
 hole_y=12.5;
+notch_width=25;
 notch_depth=15;
+notch_slant_width=5;
+notch_left_x=(width-notch_width)/2-notch_slant_width;
+support_x=40;
+support_width=5;
+support_height=25;
+support_thickness=4.5;
+plate_thickness=1.2;
 unit("mm") {
   union() {
-    linear_extrude(height=1.2) {
+    linear_extrude(height=plate_thickness) {
       difference(r=3) {
         difference(r=0.5) {
           difference() {
@@ -15,7 +23,6 @@ unit("mm") {
               translate([width-hole_x,hole_y]) circle(2);
               translate([hole_x,height-hole_y]) circle(2);
               translate([width-hole_x,height-hole_y]) circle(2);
-
             }
           }
           union() {
@@ -25,15 +32,25 @@ unit("mm") {
           }
         }
         union() {
-          polygon([(35,0),(40,notch_depth),(65,notch_depth),(70,0)]);
-          polygon([(35,height),(40,height-notch_depth),(65,height-notch_depth),(70,height)]);
+          polygon([
+              (notch_left_x,0),
+              (notch_left_x+notch_slant_width,notch_depth),
+              (width-notch_left_x-notch_slant_width,notch_depth),
+              (width-notch_left_x,0)
+          ]);
+          polygon([
+              (notch_left_x,height),
+              (notch_left_x+notch_slant_width,height-notch_depth),
+              (width-notch_left_x-notch_slant_width,height-notch_depth),
+              (width-notch_left_x,height)
+          ]);
         }
       }
     }
-    linear_extrude(height=1.2+4.5) {
+    linear_extrude(height=plate_thickness+support_thickness) {
       union() {
-        translate([40,15]) square([5,25], r=1);
-        translate([60,15]) square([5,25], r=1);
+        translate([support_x,(height-support_height)/2]) square([support_width,support_height], r=1);
+        translate([width-support_x-support_width,(height-support_height)/2]) square([support_width,support_height], r=1);
       }
     }
   }
