@@ -1,0 +1,5 @@
+resolver: lts-14.3
+
+extra-deps:
+  - storable-endian-0.2.6@sha256:cae7aac2bfe6037660b2cf294891867e69bcd74e739a3b3ea759e9ad99d6c889,801
+
