@@ -5,17 +5,20 @@ hole_y=12.5;
 notch_width=25;
 notch_depth=15;
 notch_slant_width=5;
-notch_left_x=(width-notch_width)/2-notch_slant_width;
 support_x=40;
 support_width=5;
 support_height=25;
 support_thickness=4.5;
 plate_thickness=1.2;
+asymmetry_x=10;
+asymmetry_height=1;
+asymmetry_interval=4;
+asymmetry_rounding=0.5;
 unit("mm") {
   union() {
     linear_extrude(height=plate_thickness) {
       difference(r=3) {
-        difference(r=0.5) {
+        difference(r=asymmetry_rounding) {
           difference() {
             square([width,height], r=5);
             union() {
@@ -26,12 +29,13 @@ unit("mm") {
             }
           }
           union() {
-            translate([10,0]) square(1.5);
-            translate([14,0]) square(1.5);
-            translate([18,0]) square(1.5);
+            translate([asymmetry_x+asymmetry_interval*0,0]) square([asymmetry_interval/2,asymmetry_height], r=asymmetry_rounding);
+            translate([asymmetry_x+asymmetry_interval*1,0]) square([asymmetry_interval/2,asymmetry_height], r=asymmetry_rounding);
+            translate([asymmetry_x+asymmetry_interval*2,0]) square([asymmetry_interval/2,asymmetry_height], r=asymmetry_rounding);
           }
         }
         union() {
+          notch_left_x=(width-notch_width)/2-notch_slant_width;
           polygon([
               (notch_left_x,0),
               (notch_left_x+notch_slant_width,notch_depth),
