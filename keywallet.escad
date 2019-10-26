@@ -14,7 +14,7 @@ notch_slant_width=5;
 notch_rounding=2;
 
 support_x=40;
-support_width=5;
+support_width=2;
 support_thickness=4.5;
 support_inset=2;
 
