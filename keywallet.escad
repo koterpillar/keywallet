@@ -1,5 +1,6 @@
 width=105;
 height=55;
+plate_thickness=1.2;
 plate_rounding=5;
 
 hole_x=5;
@@ -17,8 +18,6 @@ support_x=40;
 support_width=2;
 support_thickness=4.5;
 support_inset=2;
-
-plate_thickness=1.2;
 
 asymmetry_x=10;
 asymmetry_height=1;
