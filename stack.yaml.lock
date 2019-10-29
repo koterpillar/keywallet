@@ -5,6 +5,13 @@
 
 packages:
 - completed:
+    hackage: implicit-0.2.0@sha256:0ae3a699238e839c19a842eaae38ec5da09b24137d6c2309d8687d651bb9bb11,7574
+    pantry-tree:
+      size: 5858
+      sha256: a706924a97594bd93bd35c4c68ce709d4cf9c3c9ad4b1541f7cc75a0cbdf926e
+  original:
+    hackage: implicit-0.2.0@sha256:0ae3a699238e839c19a842eaae38ec5da09b24137d6c2309d8687d651bb9bb11,7574
+- completed:
     hackage: storable-endian-0.2.6@sha256:cae7aac2bfe6037660b2cf294891867e69bcd74e739a3b3ea759e9ad99d6c889,801
     pantry-tree:
       size: 223

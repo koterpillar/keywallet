@@ -2,7 +2,10 @@ name: keywallet
 
 dependencies:
   - base >= 4.7 && < 5
+  - implicit
 
-library:
+ghc-options: -Wall
+
+executable:
+  main: Main.hs
   source-dirs: src
-  ghc-options: -Wall
