@@ -66,10 +66,6 @@ rectRXYWH r (x, y) (w, h) = rectRXYXY r (x1, y1) (x2, y2)
     x2 = x + w
     y1 = y
     y2 = y + h
-    xmin = min x1 x2
-    xmax = max x1 x2
-    ymin = min y1 y2
-    ymax = max y1 y2
 
 rectXYWH = rectRXYWH 0
 
