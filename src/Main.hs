@@ -1,8 +1,7 @@
 {-# OPTIONS_GHC -Wno-missing-signatures #-}
 import Graphics.Implicit
 
-resolution :: Double
-resolution = 0.0001
+resolution = 0.4
 
 plateWidth = 105
 
@@ -137,5 +136,5 @@ supports = extrudeR 0 supports2 (plateThickness + supportThickness)
 keywallet = union [plate, supports]
 
 main :: IO ()
-main = writeBinSTL 0.5 "keywallet.stl" keywallet
+main = writeBinSTL resolution "keywallet.stl" keywallet
 
