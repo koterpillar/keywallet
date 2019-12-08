@@ -17,13 +17,13 @@ holeY = 12.5
 
 holeRadius = 2
 
-notch1Width = 25
+notchAWidth = 25
 
-notch1Depth = 15
+notchADepth = 15
 
-notch2Width = 25
+notchBWidth = 25
 
-notch2Depth = 7.5
+notchBDepth = 7.5
 
 notchSlantWidth = 5
 
@@ -45,7 +45,9 @@ supportWidth = 2
 
 supportThickness = 4.5
 
-supportInset = 2
+support1Inset = 17
+
+support2Inset = 9.5
 
 supportRounding = 1
 
@@ -90,7 +92,7 @@ asymmetry =
         , asymmetryHeight)
 
 notches =
-  union [notch notch1Width notch1Depth id, notch notch2Width notch2Depth flipY]
+  union [notch notchAWidth notchADepth id, notch notchBWidth notchBDepth flipY]
   where
     notch width depth yFn =
       differenceR
@@ -130,8 +132,8 @@ supports = extrudeR 0 supports2 (plateThickness + supportThickness)
             oneSupport
         ]
     oneSupport = rectR supportRounding (0, 0) (supportWidth, supportHeight)
-    supportHeight = plateHeight - notch1Depth - notch2Depth - supportInset * 2
-    supportTop = notch1Depth + supportInset
+    supportHeight = plateHeight - support1Inset - support2Inset
+    supportTop = support1Inset
 
 keywallet = union [plate, supports]
 
