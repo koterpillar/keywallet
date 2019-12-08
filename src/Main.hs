@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -Wno-missing-signatures #-}
 import Graphics.Implicit
 
 resolution :: Double
