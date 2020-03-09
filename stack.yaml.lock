@@ -5,12 +5,12 @@
 
 packages:
 - completed:
-    hackage: implicit-0.2.0@sha256:0ae3a699238e839c19a842eaae38ec5da09b24137d6c2309d8687d651bb9bb11,7574
+    hackage: implicit-0.3.0.1@sha256:6483788b310be6531385d05d9064b7992752dec4c1dee7016df27bde3b1f11cb,10881
     pantry-tree:
-      size: 5858
-      sha256: a706924a97594bd93bd35c4c68ce709d4cf9c3c9ad4b1541f7cc75a0cbdf926e
+      size: 4927
+      sha256: 096b83316dac4d5d0d79c6ec02821d9a824048cc657642132f8dba13349d50ab
   original:
-    hackage: implicit-0.2.0@sha256:0ae3a699238e839c19a842eaae38ec5da09b24137d6c2309d8687d651bb9bb11,7574
+    hackage: implicit-0.3.0.1@sha256:6483788b310be6531385d05d9064b7992752dec4c1dee7016df27bde3b1f11cb,10881
 - completed:
     hackage: storable-endian-0.2.6@sha256:cae7aac2bfe6037660b2cf294891867e69bcd74e739a3b3ea759e9ad99d6c889,801
     pantry-tree:
@@ -20,7 +20,7 @@ packages:
     hackage: storable-endian-0.2.6@sha256:cae7aac2bfe6037660b2cf294891867e69bcd74e739a3b3ea759e9ad99d6c889,801
 snapshots:
 - completed:
-    size: 523878
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/14/3.yaml
-    sha256: 470c46c27746a48c7c50f829efc0cf00112787a7804ee4ac7a27754658f6d92c
-  original: lts-14.3
+    size: 491373
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/15/3.yaml
+    sha256: 29e9ff61b8bf4b4fcff55cde3ac106ebb971f0d21331dccac9eee63374fa6ca8
+  original: lts-15.3
