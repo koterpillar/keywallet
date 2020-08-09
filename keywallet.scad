@@ -3,8 +3,17 @@ $fs = 0.2;
 
 e = 0.001;
 
+// ISO/IEC_7810 ID-1
+card_thickness = 0.76;
+card_width = 85.60;
+card_height = 53.98;
+
+card_count = 3;
+
+card_wall = 1.5;
+
 plate_width = 105;
-plate_height = 55;
+plate_height = card_height + 2 * card_wall;
 plate_thickness = 1.2;
 plate_rounding = 5;
 
@@ -147,13 +156,6 @@ module key_plate() {
   }
 }
 
-// ISO/IEC_7810 ID-1
-card_thickness = 0.76;
-card_width = 85.60;
-card_height = 53.98;
-
-card_wall_height = (plate_height - card_height) / 2;
-card_count = 3;
 cards_thickness = card_count * card_thickness;
 
 module card_teeth() {
@@ -161,7 +163,7 @@ module card_teeth() {
   count = 4;
 
   thickness = cards_thickness / 2;
-  height = card_wall_height;
+  height = card_wall;
   rounding = (height - e) / 2;
   spacing = (card_width - count * width) / count;
   start_x = (plate_width - card_width) / 2 + spacing;
@@ -171,8 +173,6 @@ module card_teeth() {
         rotate([0, 90, 0])
           mirror([1, 0, 0])
           linear_extrude(width)
-          offset(r = rounding)
-          offset(delta = -rounding)
           square([thickness + plate_thickness / 2, height]);
       }
 }
@@ -180,22 +180,21 @@ module card_teeth() {
 module card_plate() {
   thickness = plate_thickness / 2;
   total_thickness = thickness + cards_thickness;
-  y_wall_width = 1.5;
   difference() {
     union() {
       plate(thickness = total_thickness);
     }
     union() {
       // cutout for pushing cards out
-      plate_cutout(5, 20, 10, 4, total_thickness);
+      plate_cutout(3, 20, 6, 4, total_thickness);
       // space for cards
-      translate([(plate_width - card_width) / 2, card_wall_height, thickness])
-        cube([card_width, card_height + card_wall_height + e, cards_thickness + e]);
+      translate([(plate_width - card_width) / 2, card_wall, thickness])
+        cube([card_width, card_height + card_wall + e, cards_thickness + e]);
       // Remove extra material on the sides
       // TODO: rounding here
       plate_symmetric_x()
         translate([-e, -e, -e])
-        cube([(plate_width - card_width) / 2 - y_wall_width + e, plate_height + 2 * e, total_thickness - thickness + e]);
+        cube([(plate_width - card_width) / 2 - card_wall + e, plate_height + 2 * e, total_thickness - thickness + e]);
     }
   }
   // bump for cards not to slide out
