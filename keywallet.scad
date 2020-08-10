@@ -10,15 +10,19 @@ card_height = 53.98;
 
 card_count = 3;
 
+card_tolerance = 0.2;
+card_tolerance_z = card_tolerance;
+
 card_wall = 1.5;
 
 plate_width = 105;
-plate_height = card_height + 2 * card_wall;
+plate_height = card_height + 2 * card_wall + 2 * card_tolerance;
 plate_thickness = 1.2;
 plate_rounding = 5;
 
 hole_x = 5;
-hole_y = 12.5;
+hole_spacing_y = 30;
+hole_y = (plate_height - hole_spacing_y) / 2;
 hole_radius = 2;
 
 module plate_flip_x() {
@@ -138,11 +142,6 @@ module supports() {
   plate_flip_y() plate_flip_x() support(9.5);
 }
 
-module middle_plate() {
-  plate(thickness = plate_thickness / 2);
-  card_teeth();
-}
-
 module key_plate() {
   difference() {
     union () {
@@ -156,49 +155,48 @@ module key_plate() {
   }
 }
 
-cards_thickness = card_count * card_thickness;
-
-module card_teeth() {
-  width = 3;
-  count = 4;
-
-  thickness = cards_thickness / 2;
-  height = card_wall;
-  rounding = (height - e) / 2;
-  spacing = (card_width - count * width) / count;
-  start_x = (plate_width - card_width) / 2 + spacing;
-  translate([start_x, plate_height - height, 0])
-    for(i = [0 : 2 : count - 1])
-      translate([i * spacing, 0, 0]) {
-        rotate([0, 90, 0])
-          mirror([1, 0, 0])
-          linear_extrude(width)
-          square([thickness + plate_thickness / 2, height]);
-      }
-}
+cards_thickness = card_count * (card_thickness + card_tolerance_z);
 
 module card_plate() {
-  thickness = plate_thickness / 2;
-  total_thickness = thickness + cards_thickness;
+  thickness = plate_thickness;
+  top_overhang = 5;
+  tooth_width = 10;
+  tooth_cutout_depth = 10;
+  tooth_cutout_width = 0.5;
+  tooth_cutout_rounding = 1;
+
   difference() {
-    union() {
-      plate(thickness = total_thickness);
-    }
-    union() {
-      // cutout for pushing cards out
-      plate_cutout(3, 20, 6, 4, total_thickness);
-      // space for cards
-      translate([(plate_width - card_width) / 2, card_wall, thickness])
-        cube([card_width, card_height + card_wall + e, cards_thickness + e]);
-      // Remove extra material on the sides
-      // TODO: rounding here
-      plate_symmetric_x()
-        translate([-e, -e, -e])
-        cube([(plate_width - card_width) / 2 - card_wall + e, plate_height + 2 * e, total_thickness - thickness + e]);
-    }
+    plate();
+    // cutouts for tooth to spring
+    plate_flip_y()
+      plate_cutout(0, tooth_width + 2 * tooth_cutout_width, tooth_cutout_depth, tooth_cutout_rounding);
   }
-  // bump for cards not to slide out
-  card_teeth();
+
+  card_width_t = card_width + 2 * card_tolerance;
+  card_height_t = card_height + 2 * card_tolerance;
+
+  corner_x = (plate_width - card_width_t) / 2 - card_wall;
+
+  // side short walls for cards
+  plate_symmetric_x()
+    translate([corner_x, 0, thickness - e])
+    cube([card_wall, plate_height, cards_thickness + 2 * e]);
+  // long wall for cards
+  translate([corner_x, 0, thickness - e])
+    cube([card_wall * 2 + card_width_t, card_wall, cards_thickness + 2 * e]);
+  // top part
+  difference() {
+    translate([corner_x, 0, thickness + cards_thickness - e])
+      cube([card_wall * 2 + card_width_t, plate_height, thickness]);
+    translate([0, 0, thickness + cards_thickness - e])
+      plate_flip_y()
+        plate_cutout(0, card_width_t - 2 * top_overhang, card_height_t - top_overhang, 4);
+  }
+  // tooth
+  translate([(plate_width - tooth_width) / 2, plate_height - tooth_cutout_depth - e, 0])
+    cube([tooth_width, tooth_cutout_depth, thickness]);
+  translate([(plate_width - tooth_width) / 2, plate_height - card_wall, 0])
+    cube([tooth_width, card_wall, thickness + cards_thickness + thickness + e]);
 }
 
 module arrange_plates() {
@@ -210,6 +208,5 @@ module arrange_plates() {
 
 arrange_plates() {
   card_plate();
-  middle_plate();
   key_plate();
 }
