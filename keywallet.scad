@@ -3,6 +3,14 @@ $fs = 0.2;
 
 e = 0.001;
 
+CubeFaces = [
+  [0,1,2,3],  // bottom
+  [4,5,1,0],  // front
+  [7,6,5,4],  // top
+  [5,6,2,1],  // right
+  [6,7,3,2],  // back
+  [7,4,0,3]]; // left
+
 // ISO/IEC_7810 ID-1
 card_thickness = 0.76;
 card_width = 85.60;
@@ -161,7 +169,8 @@ module card_plate() {
   thickness = plate_thickness;
   top_overhang = 5;
   tooth_width = 10;
-  tooth_cutout_depth = 10;
+  tooth_inset_height = 2;
+  tooth_cutout_height = 10;
   tooth_cutout_width = 0.5;
   tooth_cutout_rounding = 1;
 
@@ -169,7 +178,7 @@ module card_plate() {
     plate();
     // cutouts for tooth to spring
     plate_flip_y()
-      plate_cutout(0, tooth_width + 2 * tooth_cutout_width, tooth_cutout_depth, tooth_cutout_rounding);
+      plate_cutout(0, tooth_width + 2 * tooth_cutout_width, tooth_cutout_height, tooth_cutout_rounding);
   }
 
   card_width_t = card_width + 2 * card_tolerance;
@@ -193,10 +202,20 @@ module card_plate() {
         plate_cutout(0, card_width_t - 2 * top_overhang, card_height_t - top_overhang, 4);
   }
   // tooth
-  translate([(plate_width - tooth_width) / 2, plate_height - tooth_cutout_depth - e, 0])
-    cube([tooth_width, tooth_cutout_depth, thickness]);
+  translate([(plate_width - tooth_width) / 2, plate_height - tooth_cutout_height - e, 0])
+    cube([tooth_width, tooth_cutout_height, thickness]);
+  tooth_thickness = thickness + cards_thickness + thickness + e;
   translate([(plate_width - tooth_width) / 2, plate_height - card_wall, 0])
-    cube([tooth_width, card_wall, thickness + cards_thickness + thickness + e]);
+    polyhedron([
+      [0          , -tooth_inset_height, 0              ],
+      [tooth_width, -tooth_inset_height, 0              ],
+      [tooth_width, card_wall          , 0              ],
+      [0          , card_wall          , 0              ],
+      [0          , 0                  , tooth_thickness],
+      [tooth_width, 0                  , tooth_thickness],
+      [tooth_width, card_wall          , tooth_thickness],
+      [0          , card_wall          , tooth_thickness],
+    ], CubeFaces);
 }
 
 module arrange_plates() {
