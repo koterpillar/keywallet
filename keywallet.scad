@@ -165,20 +165,50 @@ module key_plate() {
 
 cards_thickness = card_count * (card_thickness + card_tolerance_z);
 
+holder_overhang = 5;
+holder_rounding = 2;
+sr = 1;
+
+module card_holder(size) {
+  translate([0, 0, -e])
+    cube([size, card_wall, cards_thickness + e]);
+  translate([0, 0, cards_thickness - e]) {
+    intersection() {
+      linear_extrude(height = plate_thickness)
+        intersection() {
+          offset(r = holder_rounding)
+            offset(delta = -holder_rounding)
+            translate([0, -holder_rounding])
+            square([size, holder_overhang + holder_rounding]);
+          square([size, holder_overhang]);
+        }
+      translate([0, 0, plate_thickness])
+        rotate([0, 90, 0])
+        linear_extrude(height = size)
+        offset(r = sr)
+        offset(delta = -sr)
+        square([sr * 2 + plate_thickness + e, holder_overhang + sr]);
+    }
+  }
+}
+
 module card_plate() {
   thickness = plate_thickness;
-  top_overhang = 5;
+  side_holder_offset = 10;
+  side_holder_size = 40;
+  bottom_holder_size = 60;
   tooth_width = 10;
-  tooth_inset_height = 2;
+  tooth_inset_height = 1;
   tooth_cutout_height = 10;
-  tooth_cutout_width = 0.5;
+  tooth_cutout_width = 2;
   tooth_cutout_rounding = 1;
+  tooth_cutout_slant = 2;
 
   difference() {
     plate();
     // cutouts for tooth to spring
     plate_flip_y()
-      plate_cutout(0, tooth_width + 2 * tooth_cutout_width, tooth_cutout_height, tooth_cutout_rounding);
+      plate_cutout(tooth_cutout_slant, tooth_width + 2 * tooth_cutout_width, tooth_cutout_height, tooth_cutout_rounding);
   }
 
   card_width_t = card_width + 2 * card_tolerance;
@@ -186,35 +216,28 @@ module card_plate() {
 
   corner_x = (plate_width - card_width_t) / 2 - card_wall;
 
-  // side short walls for cards
+  // side holders
   plate_symmetric_x()
-    translate([corner_x, 0, thickness - e])
-    cube([card_wall, plate_height, cards_thickness + 2 * e]);
-  // long wall for cards
-  translate([corner_x, 0, thickness - e])
-    cube([card_wall * 2 + card_width_t, card_wall, cards_thickness + 2 * e]);
-  // top part
-  difference() {
-    translate([corner_x, 0, thickness + cards_thickness - e])
-      cube([card_wall * 2 + card_width_t, plate_height, thickness]);
-    translate([0, 0, thickness + cards_thickness - e])
-      plate_flip_y()
-        plate_cutout(0, card_width_t - 2 * top_overhang, card_height_t - top_overhang, 4);
-  }
+    translate([corner_x, side_holder_offset + side_holder_size, thickness])
+    rotate([0, 0, -90])
+    card_holder(side_holder_size);
+  // bottom holder
+  translate([(plate_width - bottom_holder_size) / 2, 0, thickness])
+    card_holder(bottom_holder_size);
   // tooth
   translate([(plate_width - tooth_width) / 2, plate_height - tooth_cutout_height - e, 0])
-    cube([tooth_width, tooth_cutout_height, thickness]);
+    cube([tooth_width, tooth_cutout_height - tooth_inset_height, thickness]);
   tooth_thickness = thickness + cards_thickness + thickness + e;
   translate([(plate_width - tooth_width) / 2, plate_height - card_wall, 0])
     polyhedron([
-      [0          , -tooth_inset_height, 0              ],
-      [tooth_width, -tooth_inset_height, 0              ],
-      [tooth_width, card_wall          , 0              ],
-      [0          , card_wall          , 0              ],
-      [0          , 0                  , tooth_thickness],
-      [tooth_width, 0                  , tooth_thickness],
-      [tooth_width, card_wall          , tooth_thickness],
-      [0          , card_wall          , tooth_thickness],
+      [0          , -tooth_inset_height           , 0              ],
+      [tooth_width, -tooth_inset_height           , 0              ],
+      [tooth_width, card_wall - tooth_inset_height, 0              ],
+      [0          , card_wall - tooth_inset_height, 0              ],
+      [0          , 0                             , tooth_thickness],
+      [tooth_width, 0                             , tooth_thickness],
+      [tooth_width, card_wall                     , tooth_thickness],
+      [0          , card_wall                     , tooth_thickness],
     ], CubeFaces);
 }
 
