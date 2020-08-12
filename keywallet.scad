@@ -3,14 +3,6 @@ $fs = 0.2;
 
 e = 0.001;
 
-CubeFaces = [
-  [0,1,2,3],  // bottom
-  [4,5,1,0],  // front
-  [7,6,5,4],  // top
-  [5,6,2,1],  // right
-  [6,7,3,2],  // back
-  [7,4,0,3]]; // left
-
 // ISO/IEC_7810 ID-1
 card_thickness = 0.76;
 card_width = 85.60;
@@ -198,6 +190,7 @@ module card_plate() {
   side_holder_size = 40;
   bottom_holder_size = 60;
   tooth_width = 10;
+  tooth_angle = 40;
   tooth_inset_height = 1;
   tooth_cutout_height = 10;
   tooth_cutout_width = 2;
@@ -221,24 +214,29 @@ module card_plate() {
     translate([corner_x, side_holder_offset + side_holder_size, thickness])
     rotate([0, 0, -90])
     card_holder(side_holder_size);
+
   // bottom holder
   translate([(plate_width - bottom_holder_size) / 2, 0, thickness])
     card_holder(bottom_holder_size);
+
   // tooth
-  translate([(plate_width - tooth_width) / 2, plate_height - tooth_cutout_height - e, 0])
-    cube([tooth_width, tooth_cutout_height - tooth_inset_height, thickness]);
-  tooth_thickness = thickness + cards_thickness + thickness + e;
-  translate([(plate_width - tooth_width) / 2, plate_height - card_wall, 0])
-    polyhedron([
-      [0          , -tooth_inset_height           , 0              ],
-      [tooth_width, -tooth_inset_height           , 0              ],
-      [tooth_width, card_wall - tooth_inset_height, 0              ],
-      [0          , card_wall - tooth_inset_height, 0              ],
-      [0          , 0                             , tooth_thickness],
-      [tooth_width, 0                             , tooth_thickness],
-      [tooth_width, card_wall                     , tooth_thickness],
-      [0          , card_wall                     , tooth_thickness],
-    ], CubeFaces);
+  tooth_lift = cards_thickness + thickness;
+  tooth_radius = tooth_lift / (1 - cos(tooth_angle));
+  translate([(plate_width + tooth_width) / 2, plate_height - tooth_cutout_height - e, 0])
+    rotate([0, -90, 0])
+    linear_extrude(tooth_width) {
+      intersection() {
+        difference() {
+          translate([tooth_radius, 0])
+            circle(r = tooth_radius);
+          union() {
+            translate([tooth_radius, 0])
+              circle(r = tooth_radius - thickness);
+          }
+        }
+        square([tooth_radius, tooth_cutout_height]);
+      }
+    }
 }
 
 module arrange_plates() {
