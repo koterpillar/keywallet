@@ -190,12 +190,11 @@ module card_plate() {
   side_holder_size = 40;
   bottom_holder_size = 60;
   tooth_width = 10;
-  tooth_angle = 40;
-  tooth_inset_height = 1;
   tooth_cutout_height = 10;
   tooth_cutout_width = 2;
   tooth_cutout_rounding = 1;
   tooth_cutout_slant = 2;
+  tooth_lift = cards_thickness - card_thickness / 2;
 
   difference() {
     plate();
@@ -220,22 +219,15 @@ module card_plate() {
     card_holder(bottom_holder_size);
 
   // tooth
-  tooth_lift = cards_thickness + thickness;
-  tooth_radius = tooth_lift / (1 - cos(tooth_angle));
   translate([(plate_width + tooth_width) / 2, plate_height - tooth_cutout_height - e, 0])
     rotate([0, -90, 0])
     linear_extrude(tooth_width) {
-      intersection() {
-        difference() {
-          translate([tooth_radius, 0])
-            circle(r = tooth_radius);
-          union() {
-            translate([tooth_radius, 0])
-              circle(r = tooth_radius - thickness);
-          }
-        }
-        square([tooth_radius, tooth_cutout_height]);
-      }
+      polygon([
+        [0, 0],
+        [thickness, 0],
+        [thickness + tooth_lift, tooth_cutout_height],
+        [tooth_lift, tooth_cutout_height],
+      ]);
     }
 }
 
