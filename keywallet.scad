@@ -51,16 +51,14 @@ module plate(thickness = plate_thickness) {
   linear_extrude(height = thickness) {
     difference() {
       offset(r = plate_rounding)
-        translate([plate_rounding, plate_rounding])
-          square([
-              plate_width - 2 * plate_rounding,
-              plate_height - 2 * plate_rounding,
-          ]);
-      {
-        plate_symmetric()
-          translate([hole_x, hole_y])
-            circle(hole_radius);
-      }
+      offset(delta = -plate_rounding)
+        square([
+          plate_width,
+          plate_height,
+        ]);
+      plate_symmetric()
+        translate([hole_x, hole_y])
+          circle(hole_radius);
     }
   }
 }
