@@ -81,8 +81,10 @@ module plate() {
   }
 }
 
+function slant(depth) = depth / tan(slant_angle);
+
 module cutout(width, depth, rounding = cutout_rounding, thickness = plate_thickness) {
-  slant = depth / tan(slant_angle);
+  slant = slant(depth);
   thickness = thickness + 2 * e;
   translate([-slant, -e, thickness / 2 - e]) {
     difference() {
@@ -229,6 +231,22 @@ module spring(height, width, thickness, lift) {
   }
 }
 
+top_lock_width = 10;
+top_lock_height = 10;
+top_lock_inset = card_thickness;
+
+module top_lock() {
+  slant = slant(top_lock_height);
+  translate([card_wall + (card_width_t - top_lock_width) / 2, plate_height, 0])
+    prismoid(
+      size1 = [top_lock_width, 0],
+      size2 = [top_lock_width + 2 * slant, top_lock_height],
+      h = top_lock_inset,
+      shift = [0, -top_lock_height / 2],
+      align = V_BACK + V_RIGHT
+    );
+}
+
 module card_plate() {
   push_cutout_width = 30;
   push_cutout_depth = 10;
@@ -256,6 +274,7 @@ module card_plate() {
         );
     }
   }
+
   // bottom spring - horizontal part
   translate([(plate_width - bottom_spring_width) / 2, 0, 0])
     plate_symmetric_y()
@@ -272,8 +291,9 @@ module card_plate() {
       lift = bottom_spring_lift
     );
 
-  translate([(plate_width - card_width_t) / 2 - card_wall, (plate_height - card_height_t) / 2 - card_wall, plate_thickness - e])
+  translate([(plate_width - card_box_width) / 2, (plate_height - card_box_height) / 2, plate_thickness - e])
     difference() {
+      // full box with card space inside
       cuboid(
         [card_box_width, card_box_height, cards_thickness + thin_thickness + e],
         align = V_ALLPOS,
@@ -281,13 +301,21 @@ module card_plate() {
         edges = EDGES_Z_ALL
       );
       union() {
-        translate([card_wall, card_wall, -e])
-          cuboid(
-            [card_width_t, card_height_t + card_wall + e, cards_thickness + e],
-            align = V_ALLPOS
-          );
+        // card space box
+        difference() {
+          translate([card_wall, card_wall, -e])
+            cuboid(
+              [card_width_t, card_height_t + card_wall + e, cards_thickness + e],
+              align = V_ALLPOS
+            );
+          translate([0, 0, cards_thickness + thin_thickness - top_lock_inset])
+            top_lock();
+        }
+        // cutout for pushing cards out
         translate([(card_box_width - push_cutout_width) / 2, 0, 0])
           cutout(push_cutout_width, push_cutout_depth, thickness = cards_thickness + thin_thickness + 2 * e);
+        translate([0, 0, cards_thickness + thin_thickness])
+          top_lock();
       }
     }
 }
