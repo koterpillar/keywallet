@@ -28,10 +28,9 @@ plate_rounding = 5;
 slant_angle = 70;
 cutout_rounding = 3;
 
-hole_x = 5;
-hole_spacing_y = 30;
-hole_y = (plate_height - hole_spacing_y) / 2;
-hole_radius = 2;
+plate_border = 5;
+thin_thickness = 0.6;
+thin_chamfer = 2;
 
 module plate_flip_x() {
   translate([plate_width, 0, 0]) mirror([1, 0, 0]) children();
@@ -56,6 +55,11 @@ module plate_symmetric() {
 }
 
 module holes() {
+  hole_x = 5;
+  hole_spacing_y = 30;
+  hole_y = (plate_height - hole_spacing_y) / 2;
+  hole_radius = 2;
+
   plate_symmetric()
     translate([hole_x, hole_y, -e])
     zcyl(
@@ -186,28 +190,56 @@ module key_plate() {
 
 cards_thickness = card_count * (card_thickness + card_tolerance_z);
 
+card_width_t = card_width + 2 * card_tolerance;
+card_height_t = card_height + 2 * card_tolerance;
+
+module plate_thinning() {
+  thinning_width = card_width_t + 2 * card_wall - 2 * plate_border;
+  thinning_height = card_height_t + 2 * card_wall - 2 * plate_border;
+
+  thinning_width_inner = thinning_width - 2 * thin_chamfer;
+  thinning_height_inner = thinning_height - 2 * thin_chamfer;
+
+  translate([(plate_width - thinning_width_inner) / 2, (plate_height - thinning_height_inner) / 2, plate_thickness - thin_thickness + e])
+  prismoid(
+    size1 = [thinning_width_inner, thinning_height_inner],
+    size2 = [thinning_width, thinning_height],
+    h = plate_thickness - thin_thickness + e,
+    align = V_ALLPOS
+    );
+}
+
 module card_plate() {
-  thickness = plate_thickness;
-  side_holder_offset = 10;
-  side_holder_size = 40;
-  bottom_holder_size = 60;
-  tooth_width = 10;
-  tooth_cutout_height = 10;
-  tooth_cutout_width = 2;
-  tooth_cutout_rounding = 1;
-  tooth_lift = cards_thickness - card_thickness / 2;
+  push_cutout_width = 30;
+  push_cutout_depth = 10;
+
+  card_box_width = card_width_t + 2 * card_wall;
+  card_box_height = card_height_t + 2 * card_wall;
 
   difference() {
     plate();
-    // cutouts for tooth to spring
-    plate_flip_y()
-      plate_cutout(tooth_width + 2 * tooth_cutout_width, tooth_cutout_height);
+    union () {
+      plate_thinning();
+    }
   }
-
-  card_width_t = card_width + 2 * card_tolerance;
-  card_height_t = card_height + 2 * card_tolerance;
-
-  corner_x = (plate_width - card_width_t) / 2 - card_wall;
+  translate([(plate_width - card_width_t) / 2 - card_wall, (plate_height - card_height_t) / 2 - card_wall, plate_thickness - e])
+    difference() {
+      cuboid(
+        [card_box_width, card_box_height, cards_thickness + thin_thickness + e],
+        align = V_ALLPOS,
+        fillet = card_wall,
+        edges = EDGES_Z_ALL
+      );
+      union() {
+        translate([card_wall, card_wall, 0])
+          cuboid(
+            [card_width_t, card_height_t + card_wall + e, cards_thickness],
+            align = V_ALLPOS
+          );
+        translate([(card_box_width - push_cutout_width) / 2, 0, 0])
+          cutout(push_cutout_width, push_cutout_depth, thickness = cards_thickness + thin_thickness + 2 * e);
+      }
+    }
 }
 
 ydistribute(plate_height + 10) {
