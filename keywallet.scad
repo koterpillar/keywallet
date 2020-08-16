@@ -1,3 +1,8 @@
+include <BOSL/constants.scad>
+use <BOSL/masks.scad>
+use <BOSL/shapes.scad>
+use <BOSL/transforms.scad>
+
 $fa = 1;
 $fs = 0.2;
 
@@ -19,6 +24,9 @@ plate_width = 105;
 plate_height = card_height + 2 * card_wall + 2 * card_tolerance;
 plate_thickness = 1.2;
 plate_rounding = 5;
+
+slant_angle = 70;
+cutout_rounding = 3;
 
 hole_x = 5;
 hole_spacing_y = 30;
@@ -47,58 +55,85 @@ module plate_symmetric() {
   plate_symmetric_x() plate_symmetric_y() children();
 }
 
-module plate(thickness = plate_thickness) {
-  linear_extrude(height = thickness) {
-    difference() {
-      offset(r = plate_rounding)
-      offset(delta = -plate_rounding)
-        square([
-          plate_width,
-          plate_height,
-        ]);
-      plate_symmetric()
-        translate([hole_x, hole_y])
-          circle(hole_radius);
-    }
+module holes() {
+  plate_symmetric()
+    translate([hole_x, hole_y, -e])
+    zcyl(
+      h = plate_thickness + 2 * e,
+      r = hole_radius,
+      align = V_TOP
+  );
+}
+
+module plate() {
+  difference() {
+    cuboid(
+      [plate_width, plate_height, plate_thickness],
+      align = V_ALLPOS,
+      fillet = plate_rounding,
+      edges = EDGES_Z_ALL
+    );
+    holes();
   }
 }
 
-module cutout(slant, width, depth, rounding, thickness = plate_thickness) {
-  overhang_x = rounding * 2;
-  overhang_y = rounding * 2 + e;
-  translate([0, 0, -e])
-    linear_extrude(height = thickness + 2 * e)
-      offset(r = -rounding)
-      offset(delta = rounding)
-      offset(r = rounding)
-      offset(delta = -rounding)
-        polygon([
-          [-slant - overhang_x, -overhang_y],
-          [-slant - overhang_x, -e],
-          [-slant, 0],
-          [0, depth],
-          [width, depth],
-          [width + slant, 0],
-          [width + slant + overhang_x, -e],
-          [width + slant + overhang_x, -overhang_y],
-          ]);
+module cutout(width, depth, rounding = cutout_rounding, thickness = plate_thickness) {
+  slant = depth / tan(slant_angle);
+  thickness = thickness + 2 * e;
+  translate([-slant, -e, thickness / 2 - e]) {
+    difference() {
+      prismoid(
+        size1 = [width + 2 * slant, thickness],
+        size2 = [width, thickness],
+        h = depth + e,
+        orient = ORIENT_Y,
+        align = V_BACK + V_RIGHT
+      );
+      union() {
+        translate([slant, depth, 0])
+          fillet_angled_edge_mask(
+            h = thickness + 2 * e,
+            r = rounding,
+            ang = 180 - slant_angle
+          );
+        translate([slant + width, depth, 0])
+          mirror(V_LEFT)
+          fillet_angled_edge_mask(
+            h = thickness + 2 * e,
+            r = rounding,
+            ang = 180 - slant_angle
+          );
+      }
+    }
+    mirror(V_LEFT)
+      fillet_angled_edge_mask(
+        h = thickness,
+        r = rounding,
+        ang = 180 - slant_angle
+      );
+    translate([width + 2 * slant, 0, 0])
+      fillet_angled_edge_mask(
+        h = thickness,
+        r = rounding,
+        ang = 180 - slant_angle
+      );
+  }
 }
 
-module plate_cutout(slant, width, depth, rounding, thickness = plate_thickness) {
+module plate_cutout(width, depth, thickness = plate_thickness) {
   translate([(plate_width - width) / 2, 0, 0])
-    cutout(slant, width, depth, rounding, thickness);
+    cutout(width, depth, thickness = thickness);
 }
 
 module cutouts() {
-  slant = 5;
-  rounding = 4;
+  rounding = 3;
   width_1 = 25;
   depth_1 = 15;
   width_2 = 25;
   depth_2 = 7.5;
 
-  plate_cutout(slant, width_1, depth_1, rounding);
-  plate_flip_y() plate_cutout(slant, width_2, depth_2, rounding);
+  plate_cutout(width_1, depth_1);
+  plate_flip_y() plate_cutout(width_2, depth_2);
 }
 
 module asymmetry() {
@@ -111,7 +146,7 @@ module asymmetry() {
   plate_symmetric_x()
     for(i = [0 : count - 1])
       translate([start_x + interval * i, 0, 0])
-        cutout(0, interval / 2, depth, rounding);
+        cutout(interval / 2, depth, rounding);
 }
 
 support_thickness = 4.5;
@@ -120,17 +155,13 @@ support_width = 2;
 support_rounding = 1;
 
 module support(inset) {
-  overhang_y = 1;
-  translate([0, 0, plate_thickness - e])
-    linear_extrude(height = support_thickness + e)
-    offset(r = support_rounding - e)
-    offset(delta = -support_rounding + e)
-    polygon([
-      [support_x, inset],
-      [support_x, plate_height / 2 + overhang_y],
-      [support_x + support_width, plate_height / 2 + overhang_y],
-      [support_x + support_width, inset],
-    ]);
+  translate([support_x, inset, plate_thickness - e])
+    cuboid(
+      [support_width, plate_height / 2 - inset, support_thickness + e],
+      align = V_ALLPOS,
+      fillet = support_rounding,
+      edges = EDGES_Z_FR
+    );
 }
 
 module supports() {
@@ -155,33 +186,6 @@ module key_plate() {
 
 cards_thickness = card_count * (card_thickness + card_tolerance_z);
 
-holder_overhang = 5;
-holder_rounding = 2;
-sr = 1;
-
-module card_holder(size) {
-  translate([0, 0, -e])
-    cube([size, card_wall, cards_thickness + e]);
-  translate([0, 0, cards_thickness - e]) {
-    intersection() {
-      linear_extrude(height = plate_thickness)
-        intersection() {
-          offset(r = holder_rounding)
-            offset(delta = -holder_rounding)
-            translate([0, -holder_rounding])
-            square([size, holder_overhang + holder_rounding]);
-          square([size, holder_overhang]);
-        }
-      translate([0, 0, plate_thickness])
-        rotate([0, 90, 0])
-        linear_extrude(height = size)
-        offset(r = sr)
-        offset(delta = -sr)
-        square([sr * 2 + plate_thickness + e, holder_overhang + sr]);
-    }
-  }
-}
-
 module card_plate() {
   thickness = plate_thickness;
   side_holder_offset = 10;
@@ -191,52 +195,22 @@ module card_plate() {
   tooth_cutout_height = 10;
   tooth_cutout_width = 2;
   tooth_cutout_rounding = 1;
-  tooth_cutout_slant = 2;
   tooth_lift = cards_thickness - card_thickness / 2;
 
   difference() {
     plate();
     // cutouts for tooth to spring
     plate_flip_y()
-      plate_cutout(tooth_cutout_slant, tooth_width + 2 * tooth_cutout_width, tooth_cutout_height, tooth_cutout_rounding);
+      plate_cutout(tooth_width + 2 * tooth_cutout_width, tooth_cutout_height);
   }
 
   card_width_t = card_width + 2 * card_tolerance;
   card_height_t = card_height + 2 * card_tolerance;
 
   corner_x = (plate_width - card_width_t) / 2 - card_wall;
-
-  // side holders
-  plate_symmetric_x()
-    translate([corner_x, side_holder_offset + side_holder_size, thickness])
-    rotate([0, 0, -90])
-    card_holder(side_holder_size);
-
-  // bottom holder
-  translate([(plate_width - bottom_holder_size) / 2, 0, thickness])
-    card_holder(bottom_holder_size);
-
-  // tooth
-  translate([(plate_width + tooth_width) / 2, plate_height - tooth_cutout_height - e, 0])
-    rotate([0, -90, 0])
-    linear_extrude(tooth_width) {
-      polygon([
-        [0, 0],
-        [thickness, 0],
-        [thickness + tooth_lift, tooth_cutout_height],
-        [tooth_lift, tooth_cutout_height],
-      ]);
-    }
 }
 
-module arrange_plates() {
-  spacing = plate_height + 10;
-  for(i = [0 : 1 : $children - 1])
-    translate([0, -i * spacing, 0])
-      children(i);
-}
-
-arrange_plates() {
+ydistribute(plate_height + 10) {
   card_plate();
   key_plate();
 }

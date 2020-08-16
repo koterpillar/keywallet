@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+
+if [ "$(uname)" = Linux ]
+then
+  LIBS=$HOME/.local/share/OpenSCAD/libraries
+elif [ "$(uname)" = Darwin ]
+then
+  LIBS=$HOME/Documents/OpenSCAD/libraries
+else
+  echo "Unknown system: $(uname)" >&2
+  exit 1
+fi
+
+mkdir -p $LIBS
+
+rm -rf $LIBS/BOSL
+mkdir -p $LIBS/BOSL
+curl -sSL https://github.com/revarbat/BOSL/archive/v1.0.1.tar.gz | \
+  gunzip | \
+  tar --extract --directory $LIBS/BOSL --strip-components 1
