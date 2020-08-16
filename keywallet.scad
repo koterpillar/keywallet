@@ -200,7 +200,7 @@ module plate_thinning() {
   thinning_width_inner = thinning_width - 2 * thin_chamfer;
   thinning_height_inner = thinning_height - 2 * thin_chamfer;
 
-  translate([(plate_width - thinning_width_inner) / 2, (plate_height - thinning_height_inner) / 2, plate_thickness - thin_thickness + e])
+  translate([(plate_width - thinning_width_inner) / 2, (plate_height - thinning_height_inner) / 2, thin_thickness])
   prismoid(
     size1 = [thinning_width_inner, thinning_height_inner],
     size2 = [thinning_width, thinning_height],
@@ -231,9 +231,9 @@ module card_plate() {
         edges = EDGES_Z_ALL
       );
       union() {
-        translate([card_wall, card_wall, 0])
+        translate([card_wall, card_wall, -e])
           cuboid(
-            [card_width_t, card_height_t + card_wall + e, cards_thickness],
+            [card_width_t, card_height_t + card_wall + e, cards_thickness + e],
             align = V_ALLPOS
           );
         translate([(card_box_width - push_cutout_width) / 2, 0, 0])
