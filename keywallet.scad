@@ -56,10 +56,11 @@ module plate_symmetric() {
   plate_symmetric_x() plate_symmetric_y() children();
 }
 
+hole_x = 5;
+hole_spacing_y = 30;
+hole_y = (plate_height - hole_spacing_y) / 2;
+
 module holes() {
-  hole_x = 5;
-  hole_spacing_y = 30;
-  hole_y = (plate_height - hole_spacing_y) / 2;
   hole_radius = 2.15;
 
   plate_symmetric()
@@ -67,6 +68,19 @@ module holes() {
     zcyl(
       h = plate_thickness + 2 * e,
       r = hole_radius,
+      align = V_TOP
+  );
+}
+
+screw_diameter = 9.4;
+
+module screws() {
+  plate_symmetric()
+    translate([hole_x, hole_y, plate_thickness])
+    color("red")
+    zcyl(
+      h = plate_thickness + 2 * e,
+      d = screw_diameter,
       align = V_TOP
   );
 }
@@ -274,6 +288,8 @@ module card_plate() {
         );
     }
   }
+  // enable screws to see clearance
+  // screws();
 
   // bottom spring - horizontal part
   translate([(plate_width - bottom_spring_width) / 2, 0, 0])
@@ -308,12 +324,22 @@ module card_plate() {
               [card_width_t, card_height_t + card_wall + e, cards_thickness + e],
               align = V_ALLPOS
             );
+          // top lock - inner
           translate([0, 0, cards_thickness + thin_thickness - top_lock_inset])
             top_lock();
         }
         // cutout for pushing cards out
         translate([(card_box_width - push_cutout_width) / 2, 0, 0])
           cutout(push_cutout_width, push_cutout_depth, thickness = cards_thickness + thin_thickness + 2 * e);
+        // cutouts for screws
+        screw_cutout_width = 6;
+        screw_cutout_depth = 3;
+        translate([-(plate_width - card_box_width) / 2, -(plate_height - card_box_height) / 2])
+          plate_symmetric()
+          translate([(plate_width - card_box_width) / 2, (plate_height - hole_spacing_y + screw_cutout_width) / 2, 0])
+          zrot(-90)
+          cutout(screw_cutout_width, screw_cutout_depth, thickness = cards_thickness + thin_thickness + e, rounding = 2);
+        // top lock - outer
         translate([0, 0, cards_thickness + thin_thickness])
           top_lock();
       }
