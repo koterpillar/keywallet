@@ -57,19 +57,45 @@ module plate_symmetric() {
 }
 
 hole_x = 5;
+hole_radius = 2.15;
 hole_spacing_y = 30;
 hole_y = (plate_height - hole_spacing_y) / 2;
 
+module hole(radius = hole_radius) {
+  zcyl(
+    h = plate_thickness + 2 * e,
+    r = radius,
+    align = V_TOP
+  );
+}
+
 module holes() {
-  hole_radius = 2.15;
 
   plate_symmetric()
     translate([hole_x, hole_y, -e])
-    zcyl(
-      h = plate_thickness + 2 * e,
-      r = hole_radius,
-      align = V_TOP
-  );
+    hole();
+}
+
+module hole_test() {
+  width = plate_width;
+  height = 15;
+  difference() {
+    cuboid(
+      [width, height, plate_thickness],
+      align = V_ALLPOS
+    );
+    translate([width / 2, height / 2, -e])
+      xdistribute(11.5) {
+        hole(2);
+        hole(2.15);
+        hole(2.3);
+        hole(2.45);
+        hole(2.6);
+        hole(2.75);
+        hole(2.9);
+        hole(3.15);
+      }
+  }
 }
 
 screw_diameter = 9.4;
