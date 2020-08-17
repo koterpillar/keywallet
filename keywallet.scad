@@ -18,6 +18,8 @@ card_count = 3;
 card_tolerance = 0.2;
 card_tolerance_z = card_tolerance;
 
+cards_thickness = 3.4;
+
 card_wall = 1.5;
 
 plate_width = 105;
@@ -58,7 +60,7 @@ module holes() {
   hole_x = 5;
   hole_spacing_y = 30;
   hole_y = (plate_height - hole_spacing_y) / 2;
-  hole_radius = 2;
+  hole_radius = 2.15;
 
   plate_symmetric()
     translate([hole_x, hole_y, -e])
@@ -173,7 +175,7 @@ module support(inset) {
 module supports() {
   support(17);
   plate_flip_x() support(17);
-  plate_flip_y() support(9.5);
+  plate_flip_y() support(13);
   plate_flip_y() plate_flip_x() support(9.5);
 }
 
@@ -189,8 +191,6 @@ module key_plate() {
     }
   }
 }
-
-cards_thickness = card_count * (card_thickness + card_tolerance_z);
 
 card_width_t = card_width + 2 * card_tolerance;
 card_height_t = card_height + 2 * card_tolerance;
