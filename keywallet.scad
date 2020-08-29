@@ -251,20 +251,19 @@ module plate_thinning() {
     );
 }
 
-top_lock_width = 10;
-top_lock_height = 10;
-top_lock_inset = card_thickness;
+top_lock_width = 20;
+top_lock_height = 5;
+top_lock_inset = card_thickness * 3;
 
 module top_lock() {
   slant = slant(top_lock_height);
-  translate([card_wall + (card_width_t - top_lock_width) / 2, plate_height, 0])
-    prismoid(
-      size1 = [top_lock_width, 0],
-      size2 = [top_lock_width + 2 * slant, top_lock_height],
-      h = top_lock_inset,
-      shift = [0, -top_lock_height / 2],
-      align = V_BACK + V_RIGHT
-    );
+  prismoid(
+    size1 = [top_lock_width, 0],
+    size2 = [top_lock_width + 2 * slant, top_lock_height],
+    h = top_lock_inset,
+    shift = [0, -top_lock_height / 2],
+    align = V_BACK + V_DOWN
+  );
 }
 
 module card_plate() {
@@ -281,43 +280,57 @@ module card_plate() {
   // enable screws to see clearance
   // screws();
 
-  translate([(plate_width - card_box_width) / 2, (plate_height - card_box_height) / 2, plate_thickness - e])
+  translate([plate_width / 2, plate_height / 2, plate_thickness]) {
     difference() {
-      // full box with card space inside
-      cuboid(
-        [card_box_width, card_box_height, cards_thickness + thin_thickness + e],
-        align = V_ALLPOS,
-        fillet = card_wall,
-        edges = EDGES_Z_ALL
-      );
       union() {
-        // card space box
+        // card box walls
         difference() {
-          translate([card_wall, card_wall, -e])
+          cuboid(
+            [card_box_width, card_box_height, cards_thickness],
+            align = V_UP,
+            fillet = card_wall,
+            edges = EDGES_Z_ALL
+          );
+          // card space box
+          translate([0, card_wall / 2, -e])
             cuboid(
-              [card_width_t, card_height_t + card_wall + e, cards_thickness + e],
-              align = V_ALLPOS
+              [card_width_t, card_height_t + card_wall + e, cards_thickness + 2 * e],
+              align = V_UP
             );
-          // top lock - inner
-          translate([0, 0, cards_thickness + thin_thickness - top_lock_inset])
+        }
+        // card box roof
+        translate([0, 0, cards_thickness - e])
+        difference() {
+          union() {
+              cuboid(
+                [card_box_width, card_box_height, thin_thickness + e],
+                align = V_UP,
+                fillet = card_wall,
+                edges = EDGES_Z_ALL
+              );
+            // top lock - inner
+            translate([0, card_box_height / 2, e])
+              top_lock();
+          }
+          translate([0, card_box_height / 2, thin_thickness + 2 * e])
             top_lock();
         }
+      }
+      union() {
         // cutout for pushing cards out
-        translate([(card_box_width - push_cutout_width) / 2, 0, 0])
+        translate([-push_cutout_width / 2, -plate_height / 2, 0])
           cutout(push_cutout_width, push_cutout_depth, thickness = cards_thickness + thin_thickness + 2 * e);
         // cutouts for screws
         screw_cutout_width = 6;
         screw_cutout_depth = 3;
-        translate([-(plate_width - card_box_width) / 2, -(plate_height - card_box_height) / 2])
+        translate([-plate_width / 2, -plate_height / 2])
           plate_symmetric()
           translate([(plate_width - card_box_width) / 2, (plate_height - hole_spacing_y + screw_cutout_width) / 2, 0])
           zrot(-90)
           cutout(screw_cutout_width, screw_cutout_depth, thickness = cards_thickness + thin_thickness + e, rounding = 2);
-        // top lock - outer
-        translate([0, 0, cards_thickness + thin_thickness])
-          top_lock();
       }
     }
+  }
 }
 
 ydistribute(plate_height + 10) {
