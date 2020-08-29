@@ -251,26 +251,6 @@ module plate_thinning() {
     );
 }
 
-module spring(height, width, thickness, lift) {
-  l = lift - thickness;
-  h = height / 2;
-  r = (h * h + l * l) / 2 / l;
-  intersection() {
-    translate([0, height / 2, l - r])
-      tube(
-        h = width,
-        ir = r,
-        wall = thickness,
-        orient = ORIENT_X
-      );
-    cube([
-      width,
-      height,
-      lift
-    ]);
-  }
-}
-
 top_lock_width = 10;
 top_lock_height = 10;
 top_lock_inset = card_thickness;
@@ -291,47 +271,15 @@ module card_plate() {
   push_cutout_width = 30;
   push_cutout_depth = 10;
 
-  bottom_spring_width = 10;
-  bottom_spring_height = 20;
-  bottom_spring_neutral_height = 10;
-  bottom_spring_lift = (plate_thickness - thin_thickness) + cards_thickness - card_thickness / 2;
-
-  bottom_spring_cutout_width = bottom_spring_width + 10;
-  bottom_spring_cutout_height = bottom_spring_height + 2 * bottom_spring_neutral_height;
-
   card_box_width = card_width_t + 2 * card_wall;
   card_box_height = card_height_t + 2 * card_wall;
 
   difference() {
     plate();
-    union () {
-      plate_thinning();
-      // cutout for bottom spring
-      translate([(plate_width - bottom_spring_cutout_width) / 2, (plate_height - bottom_spring_cutout_height) / 2, -e])
-        cuboid(
-          [bottom_spring_cutout_width, bottom_spring_cutout_height, plate_thickness + 2 * e],
-          align = V_ALLPOS
-        );
-    }
+    plate_thinning();
   }
   // enable screws to see clearance
   // screws();
-
-  // bottom spring - horizontal part
-  translate([(plate_width - bottom_spring_width) / 2, 0, 0])
-    plate_symmetric_y()
-    cuboid(
-      [bottom_spring_width, (plate_height - bottom_spring_height) / 2 + e, thin_thickness - e],
-      align = V_ALLPOS
-    );
-  // bottom spring - curved part
-  translate([(plate_width - bottom_spring_width) / 2, (plate_height - bottom_spring_height) / 2, 0])
-    spring(
-      height = bottom_spring_height,
-      width = bottom_spring_width,
-      thickness = thin_thickness,
-      lift = bottom_spring_lift
-    );
 
   translate([(plate_width - card_box_width) / 2, (plate_height - card_box_height) / 2, plate_thickness - e])
     difference() {
