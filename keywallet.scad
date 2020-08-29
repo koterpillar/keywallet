@@ -34,26 +34,8 @@ plate_border = 5;
 thin_thickness = 0.6;
 thin_chamfer = 2;
 
-module plate_flip_x() {
-  translate([plate_width, 0, 0]) mirror([1, 0, 0]) children();
-}
-
-module plate_flip_y() {
-  translate([0, plate_height, 0]) mirror([0, 1, 0]) children();
-}
-
-module plate_symmetric_x() {
-  children();
-  plate_flip_x() children();
-}
-
-module plate_symmetric_y() {
-  children();
-  plate_flip_y() children();
-}
-
-module plate_symmetric() {
-  plate_symmetric_x() plate_symmetric_y() children();
+module xyflip_copy() {
+  xflip_copy() yflip_copy() children();
 }
 
 hole_x = 5;
@@ -71,8 +53,8 @@ module hole(radius = hole_radius) {
 
 module holes() {
 
-  plate_symmetric()
-    translate([hole_x, hole_y, -e])
+  xyflip_copy()
+    translate([plate_width / 2 - hole_x, plate_height / 2 - hole_y, -e])
     hole();
 }
 
@@ -101,7 +83,7 @@ module hole_test() {
 screw_diameter = 9.4;
 
 module screws() {
-  plate_symmetric()
+  xyflip_copy()
     translate([hole_x, hole_y, plate_thickness])
     color("red")
     zcyl(
@@ -115,7 +97,7 @@ module plate() {
   difference() {
     cuboid(
       [plate_width, plate_height, plate_thickness],
-      align = V_ALLPOS,
+      align = V_UP,
       fillet = plate_rounding,
       edges = EDGES_Z_ALL
     );
@@ -128,38 +110,25 @@ function slant(depth) = depth / tan(slant_angle);
 module cutout(width, depth, rounding = cutout_rounding, thickness = plate_thickness) {
   slant = slant(depth);
   thickness = thickness + 2 * e;
-  translate([-slant, -e, thickness / 2 - e]) {
+  translate([0, -e, thickness / 2 - e]) {
     difference() {
       prismoid(
         size1 = [width + 2 * slant, thickness],
         size2 = [width, thickness],
         h = depth + e,
         orient = ORIENT_Y,
-        align = V_BACK + V_RIGHT
+        align = V_BACK
       );
-      union() {
-        translate([slant, depth, 0])
-          fillet_angled_edge_mask(
-            h = thickness + 2 * e,
-            r = rounding,
-            ang = 180 - slant_angle
-          );
-        translate([slant + width, depth, 0])
-          mirror(V_LEFT)
-          fillet_angled_edge_mask(
-            h = thickness + 2 * e,
-            r = rounding,
-            ang = 180 - slant_angle
-          );
-      }
+      xflip_copy()
+      translate([-width / 2, depth, 0])
+        fillet_angled_edge_mask(
+          h = thickness + 2 * e,
+          r = rounding,
+          ang = 180 - slant_angle
+        );
     }
-    mirror(V_LEFT)
-      fillet_angled_edge_mask(
-        h = thickness,
-        r = rounding,
-        ang = 180 - slant_angle
-      );
-    translate([width + 2 * slant, 0, 0])
+    xflip_copy()
+    translate([width / 2 + slant, 0, 0])
       fillet_angled_edge_mask(
         h = thickness,
         r = rounding,
@@ -169,7 +138,7 @@ module cutout(width, depth, rounding = cutout_rounding, thickness = plate_thickn
 }
 
 module plate_cutout(width, depth, thickness = plate_thickness) {
-  translate([(plate_width - width) / 2, 0, 0])
+  translate([0, -plate_height / 2, 0])
     cutout(width, depth, thickness = thickness);
 }
 
@@ -181,7 +150,7 @@ module cutouts() {
   depth_2 = 7.5;
 
   plate_cutout(width_1, depth_1);
-  plate_flip_y() plate_cutout(width_2, depth_2);
+  yflip() plate_cutout(width_2, depth_2);
 }
 
 module asymmetry() {
@@ -191,9 +160,9 @@ module asymmetry() {
   rounding = 0.5;
   count = 3;
 
-  plate_symmetric_x()
+  xflip_copy()
     for(i = [0 : count - 1])
-      translate([start_x + interval * i, 0, 0])
+      translate([-plate_width / 2 + start_x + interval * i, -plate_height / 2, 0])
         cutout(interval / 2, depth, rounding);
 }
 
@@ -203,10 +172,10 @@ support_width = 2;
 support_rounding = 1;
 
 module support(inset) {
-  translate([support_x, inset, plate_thickness - e])
+  translate([support_x - plate_width / 2, 0, plate_thickness - e])
     cuboid(
       [support_width, plate_height / 2 - inset, support_thickness + e],
-      align = V_ALLPOS,
+      align = V_RIGHT + V_FWD + V_UP,
       fillet = support_rounding,
       edges = EDGES_Z_FR
     );
@@ -214,9 +183,9 @@ module support(inset) {
 
 module supports() {
   support(17);
-  plate_flip_x() support(17);
-  plate_flip_y() support(13);
-  plate_flip_y() plate_flip_x() support(9.5);
+  xflip() support(17);
+  yflip() support(13);
+  yflip() xflip() support(9.5);
 }
 
 module key_plate() {
@@ -242,12 +211,12 @@ module plate_thinning() {
   thinning_width_inner = thinning_width - 2 * thin_chamfer;
   thinning_height_inner = thinning_height - 2 * thin_chamfer;
 
-  translate([(plate_width - thinning_width_inner) / 2, (plate_height - thinning_height_inner) / 2, thin_thickness])
+  translate([0, 0, thin_thickness])
   prismoid(
     size1 = [thinning_width_inner, thinning_height_inner],
     size2 = [thinning_width, thinning_height],
     h = plate_thickness - thin_thickness + e,
-    align = V_ALLPOS
+    align = V_UP
     );
 }
 
@@ -280,7 +249,7 @@ module card_plate() {
   // enable screws to see clearance
   // screws();
 
-  translate([plate_width / 2, plate_height / 2, plate_thickness]) {
+  translate([0, 0, plate_thickness]) {
     difference() {
       union() {
         // card box walls
@@ -318,14 +287,13 @@ module card_plate() {
       }
       union() {
         // cutout for pushing cards out
-        translate([-push_cutout_width / 2, -plate_height / 2, 0])
+        translate([0, -plate_height / 2, 0])
           cutout(push_cutout_width, push_cutout_depth, thickness = cards_thickness + thin_thickness + 2 * e);
         // cutouts for screws
         screw_cutout_width = 6;
         screw_cutout_depth = 3;
-        translate([-plate_width / 2, -plate_height / 2])
-          plate_symmetric()
-          translate([(plate_width - card_box_width) / 2, (plate_height - hole_spacing_y + screw_cutout_width) / 2, 0])
+        xyflip_copy()
+        translate([-card_box_width / 2, -hole_spacing_y / 2, 0])
           zrot(-90)
           cutout(screw_cutout_width, screw_cutout_depth, thickness = cards_thickness + thin_thickness + e, rounding = 2);
       }
