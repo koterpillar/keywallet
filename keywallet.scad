@@ -200,8 +200,8 @@ module plate_thinning() {
 }
 
 top_lock_width = 20;
-top_lock_height = 5;
-top_lock_inset = card_thickness * 3;
+top_lock_height = 20;
+top_lock_inset = card_thickness * 2;
 
 module top_lock() {
   slant = slant(top_lock_height);
