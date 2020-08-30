@@ -42,6 +42,7 @@ hole_x = 5;
 hole_radius = 2.15;
 hole_spacing_y = 30;
 hole_y = (plate_height - hole_spacing_y) / 2;
+hole_spacing_x = plate_width - 2 * hole_x;
 
 module hole(radius = hole_radius) {
   zcyl(
@@ -54,7 +55,7 @@ module hole(radius = hole_radius) {
 module holes() {
 
   xyflip_copy()
-    translate([plate_width / 2 - hole_x, plate_height / 2 - hole_y, -e])
+    translate([hole_spacing_x / 2, hole_spacing_y / 2, -e])
     hole();
 }
 
@@ -62,7 +63,7 @@ screw_diameter = 9.4;
 
 module screws() {
   xyflip_copy()
-    translate([hole_x, hole_y, plate_thickness])
+    translate([hole_spacing_x / 2, hole_spacing_y / 2, plate_thickness])
     color("red")
     zcyl(
       h = plate_thickness + 2 * e,
