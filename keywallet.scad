@@ -53,7 +53,6 @@ module hole(radius = hole_radius) {
 }
 
 module holes() {
-
   xyflip_copy()
     translate([hole_spacing_x / 2, hole_spacing_y / 2, -e])
     hole();
