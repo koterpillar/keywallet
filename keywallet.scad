@@ -58,28 +58,6 @@ module holes() {
     hole();
 }
 
-module hole_test() {
-  width = plate_width;
-  height = 15;
-  difference() {
-    cuboid(
-      [width, height, plate_thickness],
-      align = V_ALLPOS
-    );
-    translate([width / 2, height / 2, -e])
-      xdistribute(11.5) {
-        hole(2);
-        hole(2.15);
-        hole(2.3);
-        hole(2.45);
-        hole(2.6);
-        hole(2.75);
-        hole(2.9);
-        hole(3.15);
-      }
-  }
-}
-
 screw_diameter = 9.4;
 
 module screws() {
