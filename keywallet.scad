@@ -213,12 +213,79 @@ module top_lock() {
   );
 }
 
+card_box_width = card_width_t + 2 * card_wall;
+card_box_height = card_height_t + 2 * card_wall;
+card_box_thickness = cards_thickness + thin_thickness;
+
+hinge_housing_height = 8;
+hinge_housing_width = (plate_width - card_box_width) / 2;
+hinge_housing_thickness = card_box_thickness;
+
+hinge_threshold = 0.3;
+hinge_axis_d = 2;
+hinge_slot_width = 3;
+hinge_axis_inset = 1;
+
+hinge_axis_x = hinge_housing_width / 2 + 0.5;
+hinge_axis_y = hinge_housing_height / 2 - 0.5;
+hinge_axis_z = hinge_housing_thickness / 2;
+
+module hinge_housing() {
+  xyflip_copy()
+  translate([-plate_width / 2, -plate_height / 2, 0]) {
+    difference() {
+      cuboid(
+        [hinge_housing_width + e, hinge_housing_height, hinge_housing_thickness],
+        align = V_ALLPOS
+      );
+      union() {
+        fillet_mask_z(
+          l = card_box_thickness,
+          r = plate_rounding,
+          align = V_UP
+        );
+        translate([0, hinge_housing_height, card_box_thickness])
+          chamfer_mask_x(
+            l = hinge_housing_width,
+            chamfer = card_box_thickness,
+            align = V_RIGHT
+          );
+        translate([hinge_axis_x, -e, -e])
+          cuboid(
+            [
+              hinge_slot_width + 2 * hinge_threshold,
+              hinge_housing_height + 2 * e,
+              hinge_housing_thickness + 2 * e
+            ],
+            align = V_UP + V_BACK
+          );
+        translate([hinge_axis_x, hinge_axis_y, hinge_axis_z]) {
+          xcyl(
+            l = hinge_slot_width + 4 * hinge_threshold + 2 * hinge_axis_inset,
+            d = hinge_axis_d + 2 * hinge_threshold
+          );
+        }
+      }
+    }
+  }
+}
+
+module hinge(rotation = 0) {
+  xflip_copy()
+  translate([-plate_width / 2, -plate_height / 2, 0]) {
+    translate([hinge_axis_x, hinge_axis_y, hinge_axis_z])
+      cyl(
+        orient = ORIENT_X,
+        l = hinge_slot_width + 2 * hinge_threshold + 2 * hinge_axis_inset,
+        d = hinge_axis_d,
+        chamfer = 0.4
+      );
+  }
+}
+
 module card_plate() {
   push_cutout_width = 30;
   push_cutout_depth = 10;
-
-  card_box_width = card_width_t + 2 * card_wall;
-  card_box_height = card_height_t + 2 * card_wall;
 
   difference() {
     plate();
@@ -228,15 +295,15 @@ module card_plate() {
   // screws();
 
   translate([0, 0, plate_thickness]) {
+    hinge_housing();
+    hinge();
     difference() {
       union() {
         // card box walls
         difference() {
           cuboid(
             [card_box_width, card_box_height, cards_thickness],
-            align = V_UP,
-            fillet = card_wall,
-            edges = EDGES_Z_ALL
+            align = V_UP
           );
           // card space box
           translate([0, card_wall / 2, -e])
@@ -251,9 +318,7 @@ module card_plate() {
           union() {
               cuboid(
                 [card_box_width, card_box_height, thin_thickness + e],
-                align = V_UP,
-                fillet = card_wall,
-                edges = EDGES_Z_ALL
+                align = V_UP
               );
             // top lock - inner
             translate([0, card_box_height / 2, e])
@@ -266,14 +331,14 @@ module card_plate() {
       union() {
         // cutout for pushing cards out
         translate([0, -plate_height / 2, 0])
-          cutout(push_cutout_width, push_cutout_depth, thickness = cards_thickness + thin_thickness + 2 * e);
+          cutout(push_cutout_width, push_cutout_depth, thickness = card_box_thickness + 2 * e);
         // cutouts for screws
         screw_cutout_width = 6;
         screw_cutout_depth = 3;
         xyflip_copy()
         translate([-card_box_width / 2, -hole_spacing_y / 2, 0])
           zrot(-90)
-          cutout(screw_cutout_width, screw_cutout_depth, thickness = cards_thickness + thin_thickness + e, rounding = 2);
+          cutout(screw_cutout_width, screw_cutout_depth, thickness = card_box_thickness + e, rounding = 2);
       }
     }
   }
