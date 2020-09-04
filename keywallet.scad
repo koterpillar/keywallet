@@ -85,20 +85,22 @@ module plate() {
 
 function slant(depth) = depth / tan(slant_angle);
 
-module cutout(width, depth, rounding = cutout_rounding, thickness = plate_thickness) {
+module cutout(width = "undefined", depth, base_width = "undefined", rounding = cutout_rounding, thickness = plate_thickness) {
   slant = slant(depth);
+  fillet_angle = 180 - slant_angle;
+  width_ = width == "undefined" ? base_width - 2 * slant - 2 * rounding / tan(fillet_angle / 2) : width;
   thickness = thickness + 2 * e;
   translate([0, -e, thickness / 2 - e]) {
     difference() {
       prismoid(
-        size1 = [width + 2 * slant, thickness],
-        size2 = [width, thickness],
+        size1 = [width_ + 2 * slant, thickness],
+        size2 = [width_, thickness],
         h = depth + e,
         orient = ORIENT_Y,
         align = V_BACK
       );
       xflip_copy()
-      translate([-width / 2, depth, 0])
+      translate([-width_ / 2, depth, 0])
         fillet_angled_edge_mask(
           h = thickness + 2 * e,
           r = rounding,
@@ -106,7 +108,7 @@ module cutout(width, depth, rounding = cutout_rounding, thickness = plate_thickn
         );
     }
     xflip_copy()
-    translate([width / 2 + slant, 0, 0])
+    translate([width_ / 2 + slant, 0, 0])
       fillet_angled_edge_mask(
         h = thickness,
         r = rounding,
@@ -141,7 +143,7 @@ module asymmetry() {
   xflip_copy()
     for(i = [0 : count - 1])
       translate([-plate_width / 2 + start_x + interval * i, -plate_height / 2, 0])
-        cutout(interval / 2, depth, rounding);
+        cutout(interval / 2, depth, rounding = rounding);
 }
 
 support_thickness = 4.5;
@@ -216,70 +218,43 @@ module top_lock() {
 card_box_width = card_width_t + 2 * card_wall;
 card_box_height = card_height_t + 2 * card_wall;
 card_box_thickness = cards_thickness + thin_thickness;
+card_box_x = (plate_width - card_box_width) / 2;
 
-hinge_housing_height = 8;
-hinge_housing_width = (plate_width - card_box_width) / 2;
-hinge_housing_thickness = card_box_thickness;
+hinge_wall = 1;
+hinge_anchor = 1.5;
 
 hinge_threshold = 0.3;
 hinge_axis_d = 2;
-hinge_slot_width = 3;
-hinge_axis_inset = 1;
 
-hinge_axis_x = hinge_housing_width / 2 + 0.5;
-hinge_axis_y = hinge_housing_height / 2 - 0.5;
-hinge_axis_z = hinge_housing_thickness / 2;
+hinge_slot_width = hinge_threshold * 2 + hinge_anchor;
 
-module hinge_housing() {
+hinge_base_width = hinge_wall * 2 + hinge_slot_width;
+hinge_base_height = 6; // TODO
+hinge_base_thickness = card_box_thickness;
+
+hinge_axis_x = card_box_x + hinge_wall - hinge_base_width / 2;
+hinge_axis_y = hinge_base_height / 2;
+hinge_axis_z = 2; // TODO
+
+module hinge_base() {
   xyflip_copy()
-  translate([-plate_width / 2, -plate_height / 2, 0]) {
-    difference() {
-      cuboid(
-        [hinge_housing_width + e, hinge_housing_height, hinge_housing_thickness],
-        align = V_ALLPOS
-      );
-      union() {
-        fillet_mask_z(
-          l = card_box_thickness,
-          r = plate_rounding,
-          align = V_UP
-        );
-        translate([0, hinge_housing_height, card_box_thickness])
-          chamfer_mask_x(
-            l = hinge_housing_width,
-            chamfer = card_box_thickness,
-            align = V_RIGHT
-          );
-        translate([hinge_axis_x, -e, -e])
-          cuboid(
-            [
-              hinge_slot_width + 2 * hinge_threshold,
-              hinge_housing_height + 2 * e,
-              hinge_housing_thickness + 2 * e
-            ],
-            align = V_UP + V_BACK
-          );
-        translate([hinge_axis_x, hinge_axis_y, hinge_axis_z]) {
-          xcyl(
-            l = hinge_slot_width + 4 * hinge_threshold + 2 * hinge_axis_inset,
-            d = hinge_axis_d + 2 * hinge_threshold
-          );
-        }
-      }
-    }
-  }
-}
-
-module hinge(rotation = 0) {
-  xflip_copy()
-  translate([-plate_width / 2, -plate_height / 2, 0]) {
-    translate([hinge_axis_x, hinge_axis_y, hinge_axis_z])
+  translate([-plate_width / 2, -plate_height / 2]) {
+    translate([hinge_axis_x, hinge_axis_y, hinge_axis_z]) {
       cyl(
         orient = ORIENT_X,
-        l = hinge_slot_width + 2 * hinge_threshold + 2 * hinge_axis_inset,
-        d = hinge_axis_d,
-        chamfer = 0.4
+        l = hinge_slot_width + 2 * e,
+        d = hinge_axis_d
       );
+      translate([-hinge_slot_width, 0, -hinge_axis_z])
+        zrot(90)
+        xrot(90)
+        cutout(
+          base_width = hinge_base_height,
+          depth = hinge_base_thickness,
+          rounding = 0.5,
+          thickness = hinge_wall
+        );
+    }
   }
 }
 
@@ -295,15 +270,16 @@ module card_plate() {
   // screws();
 
   translate([0, 0, plate_thickness]) {
-    hinge_housing();
-    hinge();
+    hinge_base();
     difference() {
       union() {
         // card box walls
         difference() {
           cuboid(
             [card_box_width, card_box_height, cards_thickness],
-            align = V_UP
+            align = V_UP,
+            fillet = card_wall,
+            edges = EDGES_Z_ALL
           );
           // card space box
           translate([0, card_wall / 2, -e])
@@ -318,7 +294,9 @@ module card_plate() {
           union() {
               cuboid(
                 [card_box_width, card_box_height, thin_thickness + e],
-                align = V_UP
+                align = V_UP,
+                fillet = card_wall,
+                edges = EDGES_Z_ALL
               );
             // top lock - inner
             translate([0, card_box_height / 2, e])
