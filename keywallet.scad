@@ -232,29 +232,44 @@ hinge_base_width = hinge_wall * 2 + hinge_slot_width;
 hinge_base_height = 6; // TODO
 hinge_base_thickness = card_box_thickness;
 
-hinge_axis_x = card_box_x + hinge_wall - hinge_base_width / 2;
-hinge_axis_y = hinge_base_height / 2;
+hinge_axis_x = card_box_x + hinge_wall - hinge_base_width / 2 - plate_width / 2;
+hinge_axis_y = hinge_base_height / 2 - plate_height / 2;
 hinge_axis_z = 2; // TODO
 
 module hinge_base() {
-  xyflip_copy()
-  translate([-plate_width / 2, -plate_height / 2]) {
-    translate([hinge_axis_x, hinge_axis_y, hinge_axis_z]) {
-      cyl(
-        orient = ORIENT_X,
-        l = hinge_slot_width + 2 * e,
-        d = hinge_axis_d
+  cyl(
+    orient = ORIENT_X,
+    l = hinge_slot_width + 2 * e,
+    d = hinge_axis_d
+  );
+  translate([-hinge_slot_width, 0, -hinge_axis_z])
+    zrot(90)
+    xrot(90)
+    cutout(
+      base_width = hinge_base_height,
+      depth = hinge_base_thickness,
+      rounding = 0.5,
+      thickness = hinge_wall
+    );
+}
+
+module hinge(rotation = 0) {
+  xrot(rotation)
+  difference() {
+    translate([hinge_anchor / 2 - e, 0, -hinge_axis_z + hinge_base_thickness])
+      zrot(90)
+      xrot(-90)
+      cutout(
+        base_width = hinge_base_height,
+        depth = hinge_base_thickness,
+        rounding = 0.5,
+        thickness = hinge_anchor - 2 * e
       );
-      translate([-hinge_slot_width, 0, -hinge_axis_z])
-        zrot(90)
-        xrot(90)
-        cutout(
-          base_width = hinge_base_height,
-          depth = hinge_base_thickness,
-          rounding = 0.5,
-          thickness = hinge_wall
-        );
-    }
+    cyl(
+        orient = ORIENT_X,
+        l = hinge_anchor + 2 * e,
+        d = hinge_axis_d + 2 * hinge_threshold
+      );
   }
 }
 
@@ -270,7 +285,12 @@ module card_plate() {
   // screws();
 
   translate([0, 0, plate_thickness]) {
-    hinge_base();
+    xflip_copy()
+    translate([hinge_axis_x, hinge_axis_y, hinge_axis_z]) {
+      hinge_base();
+      hinge();
+    }
+
     difference() {
       union() {
         // card box walls
