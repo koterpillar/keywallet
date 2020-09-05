@@ -85,24 +85,23 @@ module plate() {
 
 function slant(depth) = depth / tan(slant_angle);
 
-module cutout(width = "undefined", depth, base_width = "undefined", rounding = cutout_rounding, thickness = plate_thickness) {
+module cutout(width = "undefined", depth, base_width = "undefined", rounding = cutout_rounding, thickness = plate_thickness, center = false, mask = true) {
   slant = slant(depth);
   fillet_angle = 180 - slant_angle;
   width_ = width == "undefined" ? base_width - 2 * slant - 2 * rounding / tan(fillet_angle / 2) : width;
-  thickness = thickness + 2 * e;
-  translate([0, -e, thickness / 2 - e]) {
+  thickness_ = mask ? thickness + 2 * e : thickness;
+  translate([0, mask ? -e : 0, center ? 0 : thickness / 2]) {
     difference() {
       prismoid(
-        size1 = [width_ + 2 * slant, thickness],
-        size2 = [width_, thickness],
-        h = depth + e,
-        orient = ORIENT_Y,
-        align = V_BACK
+        size1 = [width_ + 2 * slant, thickness_],
+        size2 = [width_, thickness_],
+        h = depth + (mask ? 2 * e : 0),
+        orient = ORIENT_Y
       );
       xflip_copy()
       translate([-width_ / 2, depth, 0])
         fillet_angled_edge_mask(
-          h = thickness + 2 * e,
+          h = thickness_ + 2 * e,
           r = rounding,
           ang = 180 - slant_angle
         );
@@ -110,7 +109,7 @@ module cutout(width = "undefined", depth, base_width = "undefined", rounding = c
     xflip_copy()
     translate([width_ / 2 + slant, 0, 0])
       fillet_angled_edge_mask(
-        h = thickness,
+        h = thickness_,
         r = rounding,
         ang = 180 - slant_angle
       );
@@ -220,56 +219,66 @@ card_box_height = card_height_t + 2 * card_wall;
 card_box_thickness = cards_thickness + thin_thickness;
 card_box_x = (plate_width - card_box_width) / 2;
 
-hinge_wall = 1;
-hinge_anchor = 1.5;
+hinge_support_width = 1;
+hinge_width = 1.5;
 
 hinge_threshold = 0.3;
 hinge_axis_d = 2;
 
-hinge_slot_width = hinge_threshold * 2 + hinge_anchor;
+hinge_wall = 0.5;
 
-hinge_base_width = hinge_wall * 2 + hinge_slot_width;
-hinge_base_height = 6; // TODO
-hinge_base_thickness = card_box_thickness;
+hinge_slot_width = hinge_threshold * 2 + hinge_width;
 
-hinge_axis_x = card_box_x + hinge_wall - hinge_base_width / 2 - plate_width / 2;
-hinge_axis_y = hinge_base_height / 2 - plate_height / 2;
+hinge_axis_x = -card_box_width / 2 - hinge_slot_width / 2;
+hinge_axis_y = 4 - plate_height / 2; // TODO this should be absolute
 hinge_axis_z = 2; // TODO
 
-module hinge_base() {
-  cyl(
-    orient = ORIENT_X,
-    l = hinge_slot_width + 2 * e,
-    d = hinge_axis_d
+flip_spacing = 0.5; // TODO
+
+module hinge_support(h, width = "undefined", base_width = "undefined", thickness) {
+  zrot(90)
+  xrot(90)
+  cutout(
+    width = width,
+    base_width = base_width,
+    depth = h,
+    rounding = 0.5,
+    thickness = thickness,
+    center = true,
+    mask = false
   );
-  translate([-hinge_slot_width, 0, -hinge_axis_z])
-    zrot(90)
-    xrot(90)
-    cutout(
-      base_width = hinge_base_height,
-      depth = hinge_base_thickness,
-      rounding = 0.5,
-      thickness = hinge_wall
+}
+
+module hinge_base(h) {
+  translate([0, 0, 0])
+    cyl(
+      orient = ORIENT_X,
+      l = hinge_slot_width + 2 * e,
+      d = hinge_axis_d
+    );
+  translate([-hinge_slot_width / 2 - hinge_support_width / 2, 0, -h])
+    hinge_support(
+      h = h + hinge_axis_d / 2,
+      width = hinge_axis_d,
+      thickness = hinge_support_width
     );
 }
 
-module hinge(rotation = 0) {
+module hinge(h, rotation = 0) {
+  outer_d = hinge_axis_d + 2 * hinge_threshold;
   xrot(rotation)
   difference() {
-    translate([hinge_anchor / 2 - e, 0, -hinge_axis_z + hinge_base_thickness])
-      zrot(90)
-      xrot(-90)
-      cutout(
-        base_width = hinge_base_height,
-        depth = hinge_base_thickness,
-        rounding = 0.5,
-        thickness = hinge_anchor - 2 * e
+    translate([0, 0, -h])
+      hinge_support(
+        h = h + outer_d / 2 + hinge_wall,
+        width = hinge_axis_d + hinge_wall, // FIXME ensure wall is at least the right amount around the hole
+        thickness = hinge_width
       );
     cyl(
-        orient = ORIENT_X,
-        l = hinge_anchor + 2 * e,
-        d = hinge_axis_d + 2 * hinge_threshold
-      );
+      orient = ORIENT_X,
+      l = hinge_width + 2 * e,
+      d = outer_d
+    );
   }
 }
 
@@ -286,10 +295,15 @@ module card_plate() {
 
   translate([0, 0, plate_thickness]) {
     xflip_copy()
-    translate([hinge_axis_x, hinge_axis_y, hinge_axis_z]) {
-      hinge_base();
-      hinge();
-    }
+    translate([hinge_axis_x, hinge_axis_y, hinge_axis_z])
+      hinge_base(
+        h = hinge_axis_z
+      );
+    translate([hinge_axis_x, hinge_axis_y, hinge_axis_z])
+      hinge(
+        h = card_box_thickness + flip_spacing - hinge_axis_z,
+        rotation = 180
+      );
 
     difference() {
       union() {
