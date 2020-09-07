@@ -83,7 +83,6 @@ module plate_cutout(width, depth, thickness = plate_thickness) {
 }
 
 module cutouts() {
-  rounding = 3;
   width_1 = 25;
   depth_1 = 15;
   width_2 = 25;

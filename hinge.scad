@@ -12,9 +12,18 @@ threshold = 0.3;
 side_width = 1;
 middle_width = 1.5;
 
+function hinge_middle_width() = middle_width;
+
 axis_d = 2;
+axis_r = axis_d / 2;
 
 hinge_wall = 0.5;
+
+hole_r = axis_r + threshold;
+hole_d = hole_r * 2;
+
+hinge_r = hole_r + hinge_wall;
+hinge_d = hinge_r * 2;
 
 slant_angle = 60;
 
@@ -66,7 +75,7 @@ module hinge_support(h, thickness, d, a = slant_angle, opposite_w = undef) {
 module hinge_base(h, left_wall = true, right_wall = true) {
   module support() {
     hinge_support(
-      h = h + axis_d / 2,
+      h = h + axis_r,
       thickness = side_width,
       d = axis_d,
       opposite_w = threshold + hinge_wall
@@ -87,24 +96,25 @@ module hinge_base(h, left_wall = true, right_wall = true) {
 }
 
 module hinge(h, rotation = 0) {
-  outer_d = axis_d + 2 * threshold;
   xrot(rotation)
   difference() {
     yflip()
     hinge_support(
-      h = h + outer_d / 2 + hinge_wall,
+      h = h + hole_d / 2 + hinge_wall,
       thickness = middle_width,
-      d = outer_d + hinge_wall * 2
+      d = hole_d + hinge_wall * 2
     );
     cyl(
       orient = ORIENT_X,
       l = middle_width + 2 * e,
-      d = outer_d
+      d = hole_d
     );
   }
 }
 
-function hinge_offset_y() = hinge_wall + threshold + axis_d / 2;
+function hinge_offset_y_min() = hinge_r;
+
+function hinge_offset_y_max(h) = hinge_r * sin(slant_angle) + (h + hinge_r * cos(slant_angle)) / tan(slant_angle);
 
 function hinge_offset_x(wall = true) = slot_width / 2 + (wall ? side_width : 0);
 
@@ -114,7 +124,7 @@ module hinge_test() {
   plate_thickness = 1.2;
   spacing = 4.5;
   hinge_axis_x = hinge_offset_x() - plate_width / 2;
-  hinge_axis_y = hinge_offset_y() - plate_height / 2;
+  hinge_axis_y = hinge_offset_y_min() - plate_height / 2;
   hinge_axis_z = spacing / 2;
   module plate() {
     cuboid(

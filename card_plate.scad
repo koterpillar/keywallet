@@ -8,6 +8,7 @@ use <utils.scad>
 include <constants.scad>
 use <components.scad>
 use <hinge.scad>
+use <card_slider.scad>
 
 $fa = 1;
 $fs = 0.2;
@@ -39,22 +40,51 @@ module card_plate() {
   // enable screws to see clearance
   // screws();
 
-  hinge_axis_x = -card_box_width / 2 - hinge_offset_x(wall = false);
-  hinge_axis_y = hinge_offset_y() - plate_height / 2;
-  hinge_axis_z = flip_offset / 2;
   translate([0, 0, plate_thickness]) {
-    xflip_copy()
-    translate([hinge_axis_x, hinge_axis_y, hinge_axis_z]) {
-      hinge_base(
-        h = hinge_axis_z,
-        right_wall = false
-      );
-      hinge(
-        h = flip_offset - hinge_axis_z,
-        rotation = 180
-      );
+
+    // card slider
+    translate([0, 0, flip_offset + card_slider_thickness() / 2])
+      card_slider();
+
+    // hinges
+    xflip_copy() {
+      hinge_axis_x = -card_box_width / 2 - hinge_offset_x(wall = false);
+      hinge_axis_y = hinge_offset_y_min() - plate_height / 2;
+      hinge_axis_z = flip_offset / 2;
+      hinge_h = flip_offset - hinge_axis_z;
+
+      translate([hinge_axis_x, hinge_axis_y, hinge_axis_z]) {
+        hinge_base(
+          h = hinge_axis_z,
+          right_wall = false
+        );
+        hinge(
+          h = hinge_h,
+          rotation = 180
+        );
+      }
+
+      // connect hinge to slider
+      arm_x = hinge_axis_x - hinge_middle_width() / 2;
+      echo(hinge_offset_y_min());
+      echo(hinge_offset_y_max(0));
+      echo(hinge_offset_y_max(hinge_h));
+      arm_y1 = hinge_axis_y - hinge_offset_y_min();
+      arm_y2 = hinge_axis_y + hinge_offset_y_max(hinge_h);
+      slider_x = -card_slider_width() / 2;
+      slider_y = -card_slider_height() / 2;
+      translate([arm_x, arm_y1, flip_offset - e])
+        cuboid(
+          [
+            abs(arm_x - slider_x) + card_wall + e,
+            abs(arm_y2 - arm_y1),
+            card_slider_thickness() + e
+          ],
+          align = V_ALLPOS
+        );
     }
 
+    // card box
     difference() {
       union() {
         // card box walls
