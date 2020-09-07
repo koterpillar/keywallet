@@ -118,6 +118,25 @@ function hinge_offset_y_max(h) = hinge_r * sin(slant_angle) + (h + hinge_r * cos
 
 function hinge_offset_x(wall = true) = slot_width / 2 + (wall ? side_width : 0);
 
+module hinge_attach(hinge_origin, hinge_h, target_x, target_z) {
+  hinge_x = hinge_origin[0];
+  hinge_y = hinge_origin[1];
+  hinge_z = hinge_origin[2];
+  arm_x = hinge_x - hinge_middle_width() / 2;
+  arm_y1 = hinge_y - hinge_offset_y_min();
+  arm_y2 = hinge_y + hinge_offset_y_max(hinge_h);
+  arm_z = hinge_z + hinge_h;
+  translate([arm_x, arm_y1, arm_z - e])
+    cuboid(
+      [
+        target_x - arm_x + e,
+        arm_y2 - arm_y1,
+        target_z - arm_z + e
+      ],
+      align = V_ALLPOS
+    );
+}
+
 module hinge_test() {
   plate_width = 40;
   plate_height = 10;

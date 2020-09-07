@@ -48,12 +48,15 @@ module card_plate() {
 
     // hinges
     xflip_copy() {
-      hinge_axis_x = -card_box_width / 2 - hinge_offset_x(wall = false);
-      hinge_axis_y = hinge_offset_y_min() - plate_height / 2;
       hinge_axis_z = flip_offset / 2;
+      hinge_origin = [
+        -card_box_width / 2 - hinge_offset_x(wall = false),
+        hinge_offset_y_min() - plate_height / 2,
+        hinge_axis_z
+      ];
       hinge_h = flip_offset - hinge_axis_z;
 
-      translate([hinge_axis_x, hinge_axis_y, hinge_axis_z]) {
+      translate(hinge_origin) {
         hinge_base(
           h = hinge_axis_z,
           right_wall = false
@@ -64,24 +67,12 @@ module card_plate() {
         );
       }
 
-      // connect hinge to slider
-      arm_x = hinge_axis_x - hinge_middle_width() / 2;
-      echo(hinge_offset_y_min());
-      echo(hinge_offset_y_max(0));
-      echo(hinge_offset_y_max(hinge_h));
-      arm_y1 = hinge_axis_y - hinge_offset_y_min();
-      arm_y2 = hinge_axis_y + hinge_offset_y_max(hinge_h);
-      slider_x = -card_slider_width() / 2;
-      slider_y = -card_slider_height() / 2;
-      translate([arm_x, arm_y1, flip_offset - e])
-        cuboid(
-          [
-            abs(arm_x - slider_x) + card_wall + e,
-            abs(arm_y2 - arm_y1),
-            card_slider_thickness() + e
-          ],
-          align = V_ALLPOS
-        );
+      hinge_attach(
+        hinge_origin = hinge_origin,
+        hinge_h = hinge_h,
+        target_x = -card_slider_width() / 2 + card_wall,
+        target_z = flip_offset + card_slider_thickness()
+      );
     }
 
     // card box
