@@ -12,6 +12,8 @@ plate_thickness = 1.2;
 plate_rounding = 5;
 
 slant_angle = 70;
+function slant(depth) = depth / tan(slant_angle);
+
 cutout_rounding = 3;
 
 plate_border = 5;
@@ -33,10 +35,6 @@ support_rounding = 1;
 
 card_width_t = card_width + 2 * card_tolerance;
 card_height_t = card_height + 2 * card_tolerance;
-
-top_lock_width = 20;
-top_lock_height = 20;
-top_lock_inset = card_thickness * 2;
 
 card_box_width = card_width_t + 2 * card_wall;
 card_box_height = card_height_t + 2 * card_wall;

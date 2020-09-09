@@ -7,8 +7,6 @@ include <environment.scad>
 use <utils.scad>
 include <constants.scad>
 
-function slant(depth) = depth / tan(slant_angle);
-
 module hole(radius = hole_radius) {
   zcyl(
     h = plate_thickness + 2 * e,
@@ -122,13 +120,33 @@ module supports() {
   yflip() xflip() support(9.5);
 }
 
-module top_lock() {
-  slant = slant(top_lock_height);
+module indentation(width, height, inset) {
+  slant = slant(height);
   prismoid(
-    size1 = [top_lock_width, 0],
-    size2 = [top_lock_width + 2 * slant, top_lock_height],
-    h = top_lock_inset,
-    shift = [0, -top_lock_height / 2],
+    size1 = [width, 0],
+    size2 = [width + 2 * slant, height],
+    h = inset,
+    shift = [0, -height / 2],
     align = V_BACK + V_DOWN
   );
+}
+
+module apply_indentation(origin = [0, 0, 0], width, height, thickness, inset) {
+  module i() {
+    indentation(
+      width = width,
+      height = height,
+      inset = inset
+    );
+  }
+
+  difference() {
+    union() {
+      children();
+      translate(origin + [0, 0, -thickness / 2 + e])
+        i();
+    }
+    translate(origin + [0, 0, thickness / 2 + e])
+      i();
+  }
 }

@@ -93,23 +93,26 @@ module card_plate() {
               align = V_UP
             );
         }
+
         // card box roof
-        translate([0, 0, cards_thickness - e])
-        difference() {
-          union() {
-              cuboid(
-                [card_box_width, card_box_height, thin_thickness + e],
-                align = V_UP,
-                fillet = card_wall,
-                edges = EDGES_Z_ALL
-              );
-            // top lock - inner
-            translate([0, card_box_height / 2, e])
-              top_lock();
+        top_lock_width = 20;
+        top_lock_height = 20;
+        top_lock_inset = card_thickness * 2;
+
+        translate([0, 0, cards_thickness + thin_thickness / 2 - e])
+          apply_indentation(
+            origin = [0, card_box_height / 2, 0],
+            width = top_lock_width,
+            height = top_lock_height,
+            thickness = thin_thickness + e,
+            inset = top_lock_inset
+          ) {
+            cuboid(
+              [card_box_width, card_box_height, thin_thickness + e],
+              fillet = card_wall,
+              edges = EDGES_Z_ALL
+            );
           }
-          translate([0, card_box_height / 2, thin_thickness + 2 * e])
-            top_lock();
-        }
       }
       union() {
         // cutout for pushing cards out
