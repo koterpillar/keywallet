@@ -143,10 +143,10 @@ module apply_indentation(origin = [0, 0, 0], width, height, thickness, inset) {
   difference() {
     union() {
       children();
-      translate(origin + [0, 0, -thickness / 2 + e])
+      translate(origin + [0, 0, -thickness / 2 * sign(inset) + e])
         i();
     }
-    translate(origin + [0, 0, thickness / 2 + e])
+    translate(origin + [0, 0, thickness / 2 * sign(inset) + e])
       i();
   }
 }

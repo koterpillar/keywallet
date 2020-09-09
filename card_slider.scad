@@ -7,7 +7,6 @@ include <environment.scad>
 use <utils.scad>
 include <constants.scad>
 use <components.scad>
-use <hinge.scad>
 
 $fa = 1;
 $fs = 0.2;
@@ -40,7 +39,15 @@ module card_slider() {
       // covers
       for (position = [-1, 1])
         translate([0, 0, position * (inner_thickness / 2 + thickness / 2)])
-          cuboid([width, height, thickness], align = V_BACK);
+          apply_indentation(
+            origin = [0, height, 0],
+            width = 10,
+            height = 5,
+            thickness = thickness,
+            inset = card_thickness / 3 * position
+          ) {
+            cuboid([width, height, thickness], align = V_BACK);
+          }
       // walls
       difference() {
         cuboid([width, height, inner_thickness], align = V_BACK);
