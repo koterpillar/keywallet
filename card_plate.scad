@@ -43,7 +43,7 @@ module card_plate() {
   translate([0, 0, plate_thickness]) {
 
     // card slider
-    translate([0, 0, flip_offset + card_slider_thickness() / 2])
+    translate([0, -card_box_height / 2, flip_offset + card_slider_thickness() / 2])
       card_slider();
 
     // hinges
