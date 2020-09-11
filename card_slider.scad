@@ -13,7 +13,7 @@ $fs = 0.2;
 
 thickness = 0.6;
 
-height_percentage = 0.5;
+height_percentage = 0.2;
 
 width = card_width_t + 2 * card_wall;
 function card_slider_width() = width;
