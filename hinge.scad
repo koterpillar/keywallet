@@ -3,6 +3,7 @@ use <BOSL/shapes.scad>
 use <BOSL/transforms.scad>
 
 include <environment.scad>
+use <card_slider.scad>
 
 $fa = 1;
 $fs = 0.2;
@@ -95,6 +96,14 @@ module hinge_base(h, left_wall = true, right_wall = true) {
       support();
 }
 
+module hinge_base_cut(h, thickness, angle = 180) {
+  xrot(angle)
+  cuboid(
+    [slot_width, hinge_d + 2 * e, thickness + e],
+    align = V_UP
+  );
+}
+
 module hinge(h, rotation = 0) {
   xrot(rotation)
   difference() {
@@ -102,7 +111,7 @@ module hinge(h, rotation = 0) {
     hinge_support(
       h = h + hole_d / 2 + hinge_wall,
       thickness = middle_width,
-      d = hole_d + hinge_wall * 2
+      d = hinge_d
     );
     cyl(
       orient = ORIENT_X,
@@ -138,13 +147,15 @@ module hinge_attach(hinge_origin, hinge_h, target_x, target_z) {
 }
 
 module hinge_test() {
-  plate_width = 40;
-  plate_height = 10;
+  plate_width = card_slider_width();
+  plate_height = card_slider_height();
   plate_thickness = 1.2;
   spacing = 4.5;
   hinge_axis_x = hinge_offset_x() - plate_width / 2;
   hinge_axis_y = hinge_offset_y_min() - plate_height / 2;
   hinge_axis_z = spacing / 2;
+  hinge_h = spacing - hinge_axis_z;
+  hinge_origin = [hinge_axis_x, hinge_axis_y, hinge_axis_z];
   module plate() {
     cuboid(
       [plate_width, plate_height, plate_thickness],
@@ -152,27 +163,36 @@ module hinge_test() {
     );
   }
   module bottom_part() {
-    plate();
+    difference() {
+      plate();
+      translate([0, 0, plate_thickness])
+        xflip_copy()
+        translate(hinge_origin)
+        hinge_base_cut(
+          h = hinge_axis_z,
+          thickness = hinge_h + card_slider_thickness()
+        );
+    }
     translate([0, 0, plate_thickness])
       xflip_copy()
-        translate([hinge_axis_x, hinge_axis_y, hinge_axis_z])
-          hinge_base(
-            h = hinge_axis_z
-          );
+      translate(hinge_origin)
+        hinge_base(
+          h = hinge_axis_z
+        );
   }
   module top_part(rot) {
     translate([0, 0, plate_thickness]) {
       xflip_copy()
-        translate([hinge_axis_x, hinge_axis_y, hinge_axis_z])
+        translate(hinge_origin)
           hinge(
-            h = spacing - hinge_axis_z,
+            h = hinge_h,
             rotation = 180 + rot
           );
       translate([0, hinge_axis_y, hinge_axis_z])
       xrot(rot)
-      translate([0, 0, spacing])
+      translate([0, -card_slider_height() / 2, spacing + card_slider_thickness() / 2])
       translate([0, -hinge_axis_y, -hinge_axis_z])
-        plate();
+        card_slider();
     }
   }
   union() {
