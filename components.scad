@@ -122,10 +122,11 @@ module supports() {
 
 module indentation(width, height, inset) {
   slant = slant(height);
+  translate([0, 0, e * sign(inset)])
   prismoid(
     size1 = [width, 0],
     size2 = [width + 2 * slant, height],
-    h = inset,
+    h = inset + e,
     shift = [0, -height / 2],
     align = V_BACK + V_DOWN
   );
@@ -143,10 +144,10 @@ module apply_indentation(origin = [0, 0, 0], width, height, thickness, inset) {
   difference() {
     union() {
       children();
-      translate(origin + [0, 0, -thickness / 2 * sign(inset) + e])
+      translate(origin + [0, 0, -thickness / 2 * sign(inset)])
         i();
     }
-    translate(origin + [0, 0, thickness / 2 * sign(inset) + e])
+    translate(origin + [0, 0, thickness / 2 * sign(inset)])
       i();
   }
 }
