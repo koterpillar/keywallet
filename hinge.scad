@@ -18,7 +18,7 @@ function hinge_middle_width() = middle_width;
 axis_d = 2;
 axis_r = axis_d / 2;
 
-hinge_wall = 0.5;
+hinge_wall = 0.8;
 
 hole_r = axis_r + threshold;
 hole_d = hole_r * 2;
@@ -147,11 +147,11 @@ module hinge_attach(hinge_origin, hinge_h, target_x, target_z) {
 }
 
 module hinge_test() {
-  plate_width = card_slider_width();
-  plate_height = card_slider_height();
+  plate_width = 50;
+  plate_height = 30;
   plate_thickness = 1.2;
   spacing = 4.5;
-  hinge_axis_x = hinge_offset_x() - plate_width / 2;
+  hinge_axis_x = hinge_offset_x() - plate_width / 2 + 5;
   hinge_axis_y = hinge_offset_y_min() - plate_height / 2;
   hinge_axis_z = spacing / 2;
   hinge_h = spacing - hinge_axis_z;
@@ -170,7 +170,8 @@ module hinge_test() {
         translate(hinge_origin)
         hinge_base_cut(
           h = hinge_axis_z,
-          thickness = hinge_h + card_slider_thickness()
+          thickness = hinge_h + card_slider_thickness(),
+          angle = 160
         );
     }
     translate([0, 0, plate_thickness])
@@ -190,9 +191,9 @@ module hinge_test() {
           );
       translate([0, hinge_axis_y, hinge_axis_z])
       xrot(rot)
-      translate([0, -card_slider_height() / 2, spacing + card_slider_thickness() / 2])
+      translate([0, 0, spacing])
       translate([0, -hinge_axis_y, -hinge_axis_z])
-        card_slider();
+        plate();
     }
   }
   union() {
