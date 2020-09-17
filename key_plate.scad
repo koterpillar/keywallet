@@ -13,7 +13,26 @@ use <plate.scad>
 $fa = 1;
 $fs = 0.2;
 
-module support(inset) {
+KEY_THICKNESS = 0;
+KEY_SUPPORT_INSET = 1;
+KEY_CUTOUT = 2;
+KEY_LENGTH = 3;
+KEY_NOTCHES = 4;
+
+// house
+key_L_D = [2.1, 9.5, 7.5, 35, 3];
+
+// trolley
+key_L_U = [2.4, 17, 15, 35, 0];
+
+// USB
+key_R_D = [4.4, 13, 7.5, 35, 0];
+
+// bike
+key_R_U = [4.9, 17, 15, 35, 0];
+
+module support(key) {
+  inset = key[KEY_SUPPORT_INSET];
   thickness = 4.5;
   x = 40;
   width = 2;
@@ -29,38 +48,47 @@ module support(inset) {
 }
 
 module supports() {
-  support(17);
-  xflip() support(17);
-  yflip() support(13);
-  yflip() xflip() support(9.5);
+  support(key_L_D);
+  xflip() support(key_R_D);
+  yflip() support(key_L_U);
+  yflip() xflip() support(key_R_U);
 }
 
-module plate_cutout(width, depth) {
+key_space = plate_width - 2 * hole_x();
+
+module plate_cutout(key1, key2) {
+  width = key_space - key1[KEY_LENGTH] - key2[KEY_LENGTH];
+  depth = max(key1[KEY_CUTOUT], key2[KEY_CUTOUT]);
   translate([0, -plate_height / 2, 0])
     cutout(width, depth);
 }
 
 module cutouts() {
-  width_1 = 25;
-  depth_1 = 15;
-  width_2 = 25;
-  depth_2 = 7.5;
-
-  plate_cutout(width_1, depth_1);
-  yflip() plate_cutout(width_2, depth_2);
+  plate_cutout(key_L_D, key_R_D);
+  yflip()
+    plate_cutout(key_L_U, key_R_U);
 }
 
-module asymmetry() {
+module notches(key) {
   start_x = 10;
   depth = 1;
   interval = 4;
   rounding = 0.5;
-  count = 3;
 
-  xflip_copy()
+  count = key[KEY_NOTCHES];
+
+  if (count > 0)
+    yflip()
     for (i = [0 : count - 1])
-      translate([-plate_width / 2 + start_x + interval * i, -plate_height / 2, 0])
-        cutout(interval / 2, depth, rounding = rounding);
+    translate([-plate_width / 2 + start_x + interval * i, -plate_height / 2, 0])
+    cutout(interval / 2, depth, rounding = rounding);
+}
+
+module all_notches() {
+  notches(key_L_D);
+  xflip() notches(key_R_D);
+  yflip() notches(key_L_U);
+  yflip() xflip() notches(key_R_U);
 }
 
 module key_plate() {
@@ -71,7 +99,7 @@ module key_plate() {
     }
     {
       cutouts();
-      asymmetry();
+      all_notches();
     }
   }
 }

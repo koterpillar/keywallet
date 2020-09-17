@@ -13,6 +13,7 @@ hole_spacing_y = 30;
 hole_y = (plate_height - hole_spacing_y) / 2;
 hole_spacing_x = plate_width - 2 * hole_x;
 
+function hole_x() = hole_x;
 function hole_spacing_y() = hole_spacing_y;
 
 module hole(radius = hole_radius) {
