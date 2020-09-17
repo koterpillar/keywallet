@@ -6,7 +6,9 @@ use <BOSL/transforms.scad>
 include <environment.scad>
 include <constants.scad>
 
-module cutout(width = undef, depth, base_width = undef, rounding = cutout_rounding, thickness = plate_thickness, center = false, mask = true) {
+rounding = 3;
+
+module cutout(width = undef, depth, base_width = undef, rounding = rounding, thickness = plate_thickness, center = false, mask = true) {
   slant = slant(depth);
   fillet_angle = 180 - slant_angle;
   width_ = is_undef(width) ? base_width - 2 * slant - 2 * rounding / tan(fillet_angle / 2) : width;

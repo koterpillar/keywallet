@@ -7,7 +7,13 @@ include <environment.scad>
 use <utils.scad>
 include <constants.scad>
 
-rounding = 5;
+hole_x = 5;
+hole_radius = 2.15;
+hole_spacing_y = 30;
+hole_y = (plate_height - hole_spacing_y) / 2;
+hole_spacing_x = plate_width - 2 * hole_x;
+
+function hole_spacing_y() = hole_spacing_y;
 
 module hole(radius = hole_radius) {
   zcyl(
@@ -23,6 +29,8 @@ module holes() {
     hole();
 }
 
+screw_diameter = 9.4;
+
 module screws() {
   xyflip_copy()
     translate([hole_spacing_x / 2, hole_spacing_y / 2, plate_thickness])
@@ -33,6 +41,8 @@ module screws() {
       align = V_TOP
   );
 }
+
+rounding = 5;
 
 module plate() {
   difference() {

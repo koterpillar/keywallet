@@ -32,6 +32,15 @@ module plate_thinning() {
     );
 }
 
+card_box_width = card_width_t + 2 * card_wall;
+card_box_height = card_height_t + 2 * card_wall;
+card_box_thickness = cards_thickness + thin_thickness;
+card_box_x = (plate_width - card_box_width) / 2;
+
+flip_spacing = 0.5;
+
+flip_offset = card_box_thickness + flip_spacing;
+
 module card_plate() {
   push_cutout_width = 30;
   push_cutout_depth = 10;
@@ -125,7 +134,7 @@ module card_plate() {
         screw_cutout_width = 6;
         screw_cutout_depth = 3;
         xyflip_copy()
-        translate([-card_box_width / 2, -hole_spacing_y / 2, 0])
+        translate([-card_box_width / 2, -hole_spacing_y() / 2, 0])
           zrot(-90)
           cutout(screw_cutout_width, screw_cutout_depth, thickness = card_box_thickness + e, rounding = 2);
       }

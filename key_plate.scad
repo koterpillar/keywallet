@@ -14,11 +14,16 @@ $fa = 1;
 $fs = 0.2;
 
 module support(inset) {
-  translate([support_x - plate_width / 2, 0, plate_thickness - e])
+  thickness = 4.5;
+  x = 40;
+  width = 2;
+  rounding = 1;
+
+  translate([x - plate_width / 2, 0, plate_thickness - e])
     cuboid(
-      [support_width, plate_height / 2 - inset, support_thickness + e],
+      [width, plate_height / 2 - inset, thickness + e],
       align = V_RIGHT + V_FWD + V_UP,
-      fillet = support_rounding,
+      fillet = rounding,
       edges = EDGES_Z_FR
     );
 }
