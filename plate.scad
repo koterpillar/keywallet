@@ -7,19 +7,21 @@ include <environment.scad>
 use <utils.scad>
 include <constants.scad>
 
-hole_x = 5;
-hole_radius = 2.15;
-hole_spacing_y = 30;
-hole_y = (plate_height - hole_spacing_y) / 2;
-hole_spacing_x = plate_width - 2 * hole_x;
+function hole_x() = 5;
 
-function hole_x() = hole_x;
+hole_spacing_y = 30;
 function hole_spacing_y() = hole_spacing_y;
 
-module hole(radius = hole_radius) {
+hole_y = (plate_height - hole_spacing_y) / 2;
+function hole_y() = hole_y;
+
+hole_spacing_x = plate_width - 2 * hole_x();
+function hole_spacing_x() = hole_spacing_x;
+
+module hole() {
   zcyl(
     h = plate_thickness + 2 * e,
-    r = radius,
+    d = screw_d,
     align = V_TOP
   );
 }
@@ -30,15 +32,13 @@ module holes() {
     hole();
 }
 
-screw_diameter = 9.4;
-
 module screws() {
   xyflip_copy()
     translate([hole_spacing_x / 2, hole_spacing_y / 2, plate_thickness])
     color("red")
     zcyl(
       h = plate_thickness + 2 * e,
-      d = screw_diameter,
+      d = screw_cap_d,
       align = V_TOP
   );
 }

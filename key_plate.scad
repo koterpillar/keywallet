@@ -31,10 +31,17 @@ key_R_D = [4.4, 13, 7.5, 35, 0];
 // bike
 key_R_U = [4.9, 17, 15, 35, 0];
 
+keys = [
+  key_L_D,
+  key_L_U,
+  key_R_D,
+  key_R_U,
+];
+
 module support(key) {
   inset = key[KEY_SUPPORT_INSET];
-  thickness = 4.5;
-  x = 40;
+  thickness = max([for (k = keys) k[KEY_THICKNESS]]);
+  x = key[KEY_LENGTH] + hole_x();
   width = 2;
   rounding = 1;
 
@@ -57,10 +64,11 @@ module supports() {
 key_space = plate_width - 2 * hole_x();
 
 module plate_cutout(key1, key2) {
-  width = key_space - key1[KEY_LENGTH] - key2[KEY_LENGTH];
+  length1 = key1[KEY_LENGTH];
+  length2 = key2[KEY_LENGTH];
   depth = max(key1[KEY_CUTOUT], key2[KEY_CUTOUT]);
-  translate([0, -plate_height / 2, 0])
-    cutout(width, depth);
+  translate([(length1 - length2) / 2, -plate_height / 2, 0])
+    cutout(key_space - length1 - length2, depth);
 }
 
 module cutouts() {

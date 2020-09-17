@@ -4,6 +4,9 @@ cards_thickness = 3.4;
 
 card_wall = 1.5;
 
+screw_d = 4.3;
+screw_cap_d = 9.4;
+
 plate_width = 105;
 plate_height = card_height + 2 * card_wall + 2 * card_tolerance;
 plate_thickness = 1.2;
