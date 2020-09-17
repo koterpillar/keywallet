@@ -37,6 +37,9 @@ card_box_height = card_height_t + 2 * card_wall;
 card_box_thickness = cards_thickness + thin_thickness;
 card_box_x = (plate_width - card_box_width) / 2;
 
+assert(card_box_width <= plate_width - 2 * hole_x - screw_cap_d,
+  "Not enough space for card box between screws");
+
 flip_spacing = 0.5;
 
 flip_offset = card_box_thickness + flip_spacing;
@@ -130,13 +133,6 @@ module card_plate() {
         // cutout for pushing cards out
         translate([0, -plate_height / 2, 0])
           cutout(push_cutout_width, push_cutout_depth, thickness = card_box_thickness + 2 * e);
-        // cutouts for screws
-        screw_cutout_width = 6;
-        screw_cutout_depth = 3;
-        xyflip_copy()
-        translate([-card_box_width / 2, -hole_spacing_y() / 2, 0])
-          zrot(-90)
-          cutout(screw_cutout_width, screw_cutout_depth, thickness = card_box_thickness + e, rounding = 2);
       }
     }
   }

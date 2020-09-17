@@ -41,7 +41,7 @@ keys = [
 module support(key) {
   inset = key[KEY_SUPPORT_INSET];
   thickness = max([for (k = keys) k[KEY_THICKNESS]]);
-  x = key[KEY_LENGTH] + hole_x();
+  x = key[KEY_LENGTH] + hole_x;
   width = 2;
   rounding = 1;
 
@@ -65,7 +65,7 @@ module plate_cutout(key1, key2) {
   length1 = key1[KEY_LENGTH];
   length2 = key2[KEY_LENGTH];
 
-  key_space = plate_width - 2 * hole_x();
+  key_space = plate_width - 2 * hole_x;
   width = key_space - length1 - length2;
   assert(width > 0, "Not enough space for keys");
   depth = max(key1[KEY_CUTOUT], key2[KEY_CUTOUT]);

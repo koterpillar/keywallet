@@ -7,15 +7,13 @@ include <environment.scad>
 use <utils.scad>
 include <constants.scad>
 
-function hole_x() = 5;
-
 hole_spacing_y = 30;
 function hole_spacing_y() = hole_spacing_y;
 
 hole_y = (plate_height - hole_spacing_y) / 2;
 function hole_y() = hole_y;
 
-hole_spacing_x = plate_width - 2 * hole_x();
+hole_spacing_x = plate_width - 2 * hole_x;
 function hole_spacing_x() = hole_spacing_x;
 
 module hole() {

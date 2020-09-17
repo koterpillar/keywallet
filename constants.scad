@@ -7,9 +7,11 @@ card_wall = 1.5;
 screw_d = 4.3;
 screw_cap_d = 9.4;
 
-plate_width = 105;
+plate_width = 109;
 plate_height = card_height + 2 * card_wall + 2 * card_tolerance;
 plate_thickness = 1.2;
+
+hole_x = 5;
 
 slant_angle = 70;
 function slant(depth) = depth / tan(slant_angle);
