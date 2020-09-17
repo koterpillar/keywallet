@@ -61,14 +61,17 @@ module supports() {
   yflip() xflip() support(key_R_U);
 }
 
-key_space = plate_width - 2 * hole_x();
-
 module plate_cutout(key1, key2) {
   length1 = key1[KEY_LENGTH];
   length2 = key2[KEY_LENGTH];
+
+  key_space = plate_width - 2 * hole_x();
+  width = key_space - length1 - length2;
+  assert(width > 0, "Not enough space for keys");
   depth = max(key1[KEY_CUTOUT], key2[KEY_CUTOUT]);
+
   translate([(length1 - length2) / 2, -plate_height / 2, 0])
-    cutout(key_space - length1 - length2, depth);
+    cutout(width, depth);
 }
 
 module cutouts() {
