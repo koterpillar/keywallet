@@ -36,8 +36,3 @@ module cutout(width = undef, depth, base_width = undef, rounding = cutout_roundi
       );
   }
 }
-
-module plate_cutout(width, depth, thickness = plate_thickness) {
-  translate([0, -plate_height / 2, 0])
-    cutout(width, depth, thickness = thickness);
-}

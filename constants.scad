@@ -1,5 +1,3 @@
-card_count = 3;
-
 card_tolerance = 0.2;
 
 cards_thickness = 3.4;
@@ -9,7 +7,6 @@ card_wall = 1.5;
 plate_width = 105;
 plate_height = card_height + 2 * card_wall + 2 * card_tolerance;
 plate_thickness = 1.2;
-plate_rounding = 5;
 
 slant_angle = 70;
 function slant(depth) = depth / tan(slant_angle);

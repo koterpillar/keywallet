@@ -7,6 +7,8 @@ include <environment.scad>
 use <utils.scad>
 include <constants.scad>
 
+rounding = 5;
+
 module hole(radius = hole_radius) {
   zcyl(
     h = plate_thickness + 2 * e,
@@ -37,7 +39,7 @@ module plate() {
     cuboid(
       [plate_width, plate_height, plate_thickness],
       align = V_UP,
-      fillet = plate_rounding,
+      fillet = rounding,
       edges = EDGES_Z_ALL
     );
     holes();

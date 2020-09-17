@@ -30,6 +30,11 @@ module supports() {
   yflip() xflip() support(9.5);
 }
 
+module plate_cutout(width, depth) {
+  translate([0, -plate_height / 2, 0])
+    cutout(width, depth);
+}
+
 module cutouts() {
   width_1 = 25;
   depth_1 = 15;
