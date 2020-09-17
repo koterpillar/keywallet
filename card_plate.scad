@@ -6,9 +6,12 @@ use <BOSL/transforms.scad>
 include <environment.scad>
 use <utils.scad>
 include <constants.scad>
-use <components.scad>
-use <hinge.scad>
+
 use <card_slider.scad>
+use <cutout.scad>
+use <hinge.scad>
+use <indentation.scad>
+use <plate.scad>
 
 $fa = 1;
 $fs = 0.2;
