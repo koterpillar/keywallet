@@ -38,9 +38,10 @@ keys = [
   key_R_U,
 ];
 
+thickness = max([for (k = keys) k[KEY_THICKNESS]]);
+
 module support(key) {
   inset = key[KEY_SUPPORT_INSET];
-  thickness = max([for (k = keys) k[KEY_THICKNESS]]);
   x = key[KEY_LENGTH] + hole_x;
   width = 2;
   height = 8;
@@ -64,6 +65,29 @@ module supports() {
   xflip() support(key_R_D);
   yflip() support(key_L_U);
   yflip() xflip() support(key_R_U);
+}
+
+module pad(key) {
+  width = hole_x * 2;
+  chamfer = 1;
+
+  xflip()
+  yflip()
+  translate([plate_width / 2 - hole_x, plate_height / 2 - hole_y(), plate_thickness - e])
+    tube(
+      h = thickness - key[KEY_THICKNESS],
+      id = screw_d,
+      od = width,
+      od2 = width - chamfer,
+      align = V_UP
+    );
+}
+
+module pads() {
+  pad(key_L_D);
+  xflip() pad(key_R_D);
+  yflip() pad(key_L_U);
+  yflip() xflip() pad(key_R_U);
 }
 
 module plate_cutout(key1, key2) {
@@ -112,6 +136,7 @@ module key_plate() {
     union () {
       plate();
       supports();
+      pads();
     }
     {
       cutouts();
