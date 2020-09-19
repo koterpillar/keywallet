@@ -43,14 +43,19 @@ module support(key) {
   thickness = max([for (k = keys) k[KEY_THICKNESS]]);
   x = key[KEY_LENGTH] + hole_x;
   width = 2;
+  height = 8;
   rounding = 1;
 
-  translate([x - plate_width / 2, 0, plate_thickness - e])
+  assert(inset + height < plate_height / 2);
+
+  y = plate_height / 2 - inset;
+
+  translate([x - plate_width / 2, height - y, plate_thickness - e])
     cuboid(
-      [width, plate_height / 2 - inset, thickness + e],
+      [width, height, thickness + e],
       align = V_RIGHT + V_FWD + V_UP,
       fillet = rounding,
-      edges = EDGES_Z_FR
+      edges = EDGES_Z_ALL
     );
 }
 
