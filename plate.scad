@@ -34,11 +34,10 @@ module screws() {
   xyflip_copy()
     translate([hole_spacing_x / 2, hole_spacing_y / 2, plate_thickness])
     color("red")
-    zcyl(
-      h = plate_thickness + 2 * e,
-      d = screw_cap_d,
+    cuboid(
+      [screw_cap_side, screw_cap_side, screw_cap_h],
       align = V_TOP
-  );
+    );
 }
 
 rounding = 5;
