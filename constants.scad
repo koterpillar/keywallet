@@ -8,7 +8,7 @@ screw_d = 4.3;
 screw_cap_side = 7.8;
 screw_cap_h = 8.5 - 6.7;
 
-plate_width = 107;
+plate_width = 105;
 plate_height = card_height + 2 * card_wall + 2 * card_tolerance;
 plate_thickness = 1.2;
 

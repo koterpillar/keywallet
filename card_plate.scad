@@ -37,7 +37,7 @@ card_box_height = card_height_t + 2 * card_wall;
 card_box_thickness = cards_thickness + thin_thickness;
 card_box_x = (plate_width - card_box_width) / 2;
 
-assert(card_box_width <= plate_width - 2 * hole_x - screw_cap_side,
+assert(card_box_width <= plate_width - 2 * hole_x - screw_cap_side + 2 * card_wall,
   "Not enough space for card box between screws");
 
 flip_spacing = 0.5;
