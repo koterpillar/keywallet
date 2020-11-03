@@ -17,6 +17,7 @@ hole_spacing_x = plate_width - 2 * hole_x;
 function hole_spacing_x() = hole_spacing_x;
 
 module hole() {
+  translate([0, 0, -e])
   zcyl(
     h = plate_thickness + 2 * e,
     d = screw_d,
@@ -24,29 +25,43 @@ module hole() {
   );
 }
 
-module holes() {
+module at_holes() {
   xyflip_copy()
-    translate([hole_spacing_x / 2, hole_spacing_y / 2, -e])
+    translate([hole_spacing_x / 2, hole_spacing_y / 2, 0])
+    children();
+}
+
+module holes() {
+  at_holes()
     hole();
 }
 
 module screw_cap(height = screw_cap_h, threshold = 0) {
   side = screw_cap_side + 2 * threshold;
-  xyflip_copy()
-    translate([hole_spacing_x / 2, hole_spacing_y / 2, plate_thickness - screw_inset])
+  at_holes()
+    translate([0, 0, plate_thickness - screw_inset + e])
     cuboid(
       [side, side, height],
       align = V_TOP
     );
 }
 
-module screws() {
-  color("red")
-  screw_cap();
+module screw_cap_2(height = screw_2_cap_h, threshold = 0) {
+  at_holes()
+    translate([0, 0, screw_2_inset - e])
+    zcyl(
+      d = screw_2_cap_d,
+      h = height,
+      align = V_BOTTOM
+    );
 }
 
 module screw_cap_clearance() {
-  screw_cap(height = 20, threshold = 0.05);
+  screw_cap(height = 20, threshold = screw_threshold);
+}
+
+module screw_cap_2_clearance() {
+  screw_cap_2(height = 20, threshold = screw_threshold);
 }
 
 rounding = 5;

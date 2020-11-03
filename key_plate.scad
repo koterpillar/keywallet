@@ -141,8 +141,11 @@ module key_plate() {
     {
       cutouts();
       all_notches();
+      screw_cap_2_clearance();
     }
   }
+  // enable to see screw caps
+  // color("red", 0.5) screw_cap_2();
 }
 
 key_plate();

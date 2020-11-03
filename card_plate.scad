@@ -55,8 +55,8 @@ module card_plate() {
     }
     plate_thinning();
   }
-  // enable screws to see clearance
-  // screws();
+  // enable to see screw caps
+  // color("red", 0.5) screw_cap();
 
   translate([0, 0, plate_thickness]) {
 
