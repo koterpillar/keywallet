@@ -28,16 +28,26 @@ module holes() {
   xyflip_copy()
     translate([hole_spacing_x / 2, hole_spacing_y / 2, -e])
     hole();
+  screw_cap_clearance();
+}
+
+module screw_cap(height = screw_cap_h, threshold = 0) {
+  side = screw_cap_side + 2 * threshold;
+  xyflip_copy()
+    translate([hole_spacing_x / 2, hole_spacing_y / 2, plate_thickness - screw_inset])
+    cuboid(
+      [side, side, height],
+      align = V_TOP
+    );
 }
 
 module screws() {
-  xyflip_copy()
-    translate([hole_spacing_x / 2, hole_spacing_y / 2, plate_thickness])
-    color("red")
-    cuboid(
-      [screw_cap_side, screw_cap_side, screw_cap_h],
-      align = V_TOP
-    );
+  color("red")
+  screw_cap();
+}
+
+module screw_cap_clearance() {
+  screw_cap(height = 20, threshold = 0.05);
 }
 
 rounding = 5;

@@ -133,6 +133,9 @@ module card_plate() {
         // cutout for pushing cards out
         translate([0, -plate_height / 2, 0])
           cutout(push_cutout_width, push_cutout_depth, thickness = card_box_thickness + 2 * e);
+        // cutouts for screws
+        translate([0, 0, -plate_thickness])
+          screw_cap_clearance();
       }
     }
   }
