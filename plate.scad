@@ -28,7 +28,6 @@ module holes() {
   xyflip_copy()
     translate([hole_spacing_x / 2, hole_spacing_y / 2, -e])
     hole();
-  screw_cap_clearance();
 }
 
 module screw_cap(height = screw_cap_h, threshold = 0) {

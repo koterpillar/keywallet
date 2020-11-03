@@ -49,7 +49,10 @@ module card_plate() {
   push_cutout_depth = 10;
 
   difference() {
-    plate();
+    difference() {
+      plate();
+      screw_cap_clearance();
+    }
     plate_thinning();
   }
   // enable screws to see clearance
