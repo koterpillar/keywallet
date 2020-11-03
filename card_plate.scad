@@ -59,40 +59,6 @@ module card_plate() {
   // color("red", 0.5) screw_cap();
 
   translate([0, 0, plate_thickness]) {
-
-    // card slider
-    translate([0, -card_box_height / 2, flip_offset + card_slider_thickness() / 2])
-      card_slider();
-
-    // hinges
-    xflip_copy() {
-      hinge_axis_z = flip_offset / 2;
-      hinge_origin = [
-        -card_box_width / 2 - hinge_offset_x(wall = false),
-        hinge_offset_y_min() - plate_height / 2,
-        hinge_axis_z
-      ];
-      hinge_h = flip_offset - hinge_axis_z;
-
-      translate(hinge_origin) {
-        hinge_base(
-          h = hinge_axis_z,
-          right_wall = false
-        );
-        hinge(
-          h = hinge_h,
-          rotation = 180
-        );
-      }
-
-      hinge_attach(
-        hinge_origin = hinge_origin,
-        hinge_h = hinge_h,
-        target_x = -card_slider_width() / 2 + card_wall,
-        target_z = flip_offset + card_slider_thickness()
-      );
-    }
-
     // card box
     difference() {
       union() {
