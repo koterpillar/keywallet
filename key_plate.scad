@@ -7,6 +7,7 @@ include <environment.scad>
 use <utils.scad>
 include <constants.scad>
 
+use <battery.scad>
 use <cutout.scad>
 use <plate.scad>
 
@@ -137,15 +138,18 @@ module key_plate() {
       plate();
       supports();
       pads();
+      holder(CR2032);
     }
     {
       cutouts();
       all_notches();
       screw_cap_2_clearance();
+      translate([0, 0, plate_thickness])
+      switch_cutout();
     }
   }
   // enable to see screw caps
-  // color("red", 0.5) screw_cap_2();
+  *color("red", 0.5) screw_cap_2();
 }
 
 key_plate();
