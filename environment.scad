@@ -1,5 +1,7 @@
 e = 0.001;
 
+infinity = 1000;
+
 // ISO/IEC_7810 ID-1
 card_thickness = 0.76;
 card_width = 85.60;
