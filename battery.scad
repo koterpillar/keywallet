@@ -14,7 +14,7 @@ switch_cut = 1.6;
 switch_length_l = 4;
 switch_length_r = 9;
 switch_width = 6;
-switch_gap = 2;
+switch_gap = 1.4;
 
 battery_threshold = 0.1;
 wall_thickness = 0.6;
@@ -25,7 +25,8 @@ cap_width = 0.5;
 cap_angle = 30;
 
 wire_outer_length = 5;
-wire_thickness = 0.8;
+wire_thickness = 0.4;
+wire_wall_gap = 0.6;
 
 pick_cut_angle = 60;
 pick_cut_width = 6;
@@ -33,8 +34,6 @@ pick_cut_width = 6;
 diode_leg_length = 26;
 diode_leg_inset = 0.7;
 diode_head_w = 4.9;
-diode_holder_x = 2;
-diode_holder_w = 2;
 
 module battery(size, align = V_CENTER) {
   zcyl(
@@ -50,6 +49,15 @@ module holder(size, battery = 0) {
   id = battery_d + battery_threshold;
   od = id + wall_thickness * 2;
   diode_x = diode_leg_length - switch_length_l;
+
+  module wire_cutout(x, bottom, top, width = 8) {
+    translate([x, 0, bottom - e])
+      cuboid(
+        [width, wire_wall_gap, top - bottom + 2 * e],
+        align = V_UP
+      );
+  }
+
   difference() {
     union() {
       // bottom pad
@@ -98,41 +106,30 @@ module holder(size, battery = 0) {
           }
         }
       // diode holder - wire side
-      translate([diode_x - e, 0, -e])
+      translate([diode_x, 0, -e])
         cuboid(
           [wall_thickness, diode_head_w + 2 * wall_thickness, switch_gap + battery_h],
           align = V_LEFT + V_UP
         );
-      // diode holder - sides
-      yflip_copy()
-        translate([diode_x + diode_holder_x, diode_head_w / 2, -e])
-        cuboid(
-          [diode_holder_w, wall_thickness, switch_gap + battery_h],
-          align = V_RIGHT + V_FWD + V_UP
-        );
     }
-    // wire cutout
-    translate([diode_x, 0, -e]) {
-      // bottom
-      cuboid(
-        [
-          diode_leg_length,
-          wire_thickness,
-          wire_thickness + diode_leg_inset + 2 * e
-        ],
-        align = V_LEFT + V_UP
-      );
-      // top
-      translate([0, 0, switch_gap + 2 * e])
-      cuboid(
-        [
-          diode_leg_length,
-          wire_thickness,
-          battery_h + wire_thickness
-        ],
-        align = V_LEFT + V_UP
-      );
-    }
+    // wire cutout - battery wall, bottom
+    wire_cutout(
+      x = id / 2,
+      bottom = 0,
+      top = diode_leg_inset + wire_thickness
+    );
+    // wire cutout - battery wall, top
+    wire_cutout(
+      x = id / 2,
+      bottom = switch_gap + battery_h / 2,
+      top = infinity
+    );
+    // wire cutout - diode holder
+    wire_cutout(
+      x = diode_x,
+      bottom = 0,
+      top = infinity
+    );
     // cutout to pick the battery out
     translate([0, 0, switch_gap + e])
     zrot(pick_cut_angle)
@@ -167,13 +164,21 @@ module switch_cutout(thickness = plate_thickness, shell = 0) {
 }
 
 difference() {
+  union() {
+  cuboid(
+    [25, 25, plate_thickness],
+    align = V_DOWN,
+    fillet = 10,
+    edges = EDGES_Z_ALL
+  );
   translate([10, 0, 0])
   cuboid(
-    [45, 25, plate_thickness],
+    [40, 12, plate_thickness],
     align = V_DOWN,
     fillet = 5,
     edges = EDGES_Z_ALL
   );
+  }
   switch_cutout();
 }
 
