@@ -34,6 +34,7 @@ pick_cut_width = 6;
 diode_leg_length = 26;
 diode_leg_inset = 0.7;
 diode_head_w = 4.9;
+diode_head_wall_thickness = 2;
 
 module battery(size, align = V_CENTER) {
   zcyl(
@@ -108,7 +109,7 @@ module holder(size, battery = 0) {
       // diode holder - wire side
       translate([diode_x, 0, -e])
         cuboid(
-          [wall_thickness, diode_head_w + 2 * wall_thickness, switch_gap + battery_h],
+          [diode_head_wall_thickness, diode_head_w + 2 * wall_thickness, switch_gap + battery_h],
           align = V_LEFT + V_UP
         );
     }
