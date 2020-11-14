@@ -14,20 +14,20 @@ switch_cut = 1.6;
 switch_length_l = 4;
 switch_length_r = 9;
 switch_width = 6;
-switch_gap = 1.4;
+switch_gap = 1;
 
 battery_threshold = 0.1;
 wall_thickness = 0.6;
 bed_inset_r = 2;
 
-cap_thickness = 0.6;
+cap_thickness = 0.8;
 cap_width = 5;
 
 wire_outer_length = 5;
 wire_thickness = 0.4;
 wire_wall_gap = 0.6;
 
-pick_cut_angle = 140;
+pick_cut_angle = 160;
 
 diode_short_leg_length = 26;
 diode_long_leg_length = 28;
@@ -107,11 +107,11 @@ module holder(size, battery = 0) {
       bottom = 0,
       top = diode_leg_inset + wire_thickness
     );
-    // wire cutout - battery wall, top
+    // wire cutout - battery wall and cover
     wire_cutout(
       x = id / 2 + wall_thickness,
       bottom = switch_gap + battery_h / 2,
-      top = switch_gap + battery_h + wire_thickness,
+      top = switch_gap + battery_h + wire_thickness / 3,
       width = wall_thickness + id - 8 * e,
       align = V_LEFT
     );
