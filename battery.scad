@@ -21,17 +21,16 @@ wall_thickness = 0.6;
 bed_inset_r = 2;
 
 cap_thickness = 0.6;
-cap_width = 0.5;
-cap_angle = 30;
+cap_width = 5;
 
 wire_outer_length = 5;
 wire_thickness = 0.4;
 wire_wall_gap = 0.6;
 
-pick_cut_angle = 60;
-pick_cut_width = 6;
+pick_cut_angle = 140;
 
-diode_leg_length = 26;
+diode_short_leg_length = 26;
+diode_long_leg_length = 28;
 diode_leg_inset = 0.7;
 diode_head_w = 4.9;
 diode_head_wall_thickness = 2;
@@ -49,13 +48,13 @@ module holder(size, battery = 0) {
   battery_h = size[1];
   id = battery_d + battery_threshold;
   od = id + wall_thickness * 2;
-  diode_x = diode_leg_length - switch_length_l;
+  diode_x = diode_short_leg_length - switch_length_l;
 
-  module wire_cutout(x, bottom, top, width = 8) {
-    translate([x, 0, bottom - e])
+  module wire_cutout(x, bottom, top, width = 8, align = V_ZERO) {
+    translate([x - align[0] * e, 0, bottom - e])
       cuboid(
-        [width, wire_wall_gap, top - bottom + 2 * e],
-        align = V_UP
+        [width + 2 * e, wire_wall_gap, top - bottom + 2 * e],
+        align = V_UP + align
       );
   }
 
@@ -90,21 +89,10 @@ module holder(size, battery = 0) {
             d = od,
             align = V_UP
           );
-          union() {
-            tube(
-              h = cap_thickness,
-              id = id,
-              od = od,
-              align = V_UP
-            );
-            xflip_copy()
-              zrot(cap_angle)
-              translate([-battery_d / 2 + cap_width, 0, 0])
-              cuboid(
-                [infinity, od, cap_thickness],
-                align = V_LEFT + V_UP
-              );
-          }
+          cuboid(
+            [infinity, cap_width, cap_thickness],
+            align = V_UP
+          );
         }
       // diode holder - wire side
       translate([diode_x, 0, -e])
@@ -121,21 +109,32 @@ module holder(size, battery = 0) {
     );
     // wire cutout - battery wall, top
     wire_cutout(
-      x = id / 2,
+      x = id / 2 + wall_thickness,
       bottom = switch_gap + battery_h / 2,
-      top = infinity
+      top = switch_gap + battery_h + wire_thickness,
+      width = wall_thickness + id - 8 * e,
+      align = V_LEFT
     );
     // wire cutout - diode holder
     wire_cutout(
       x = diode_x,
       bottom = 0,
-      top = infinity
+      top = infinity,
+      width = diode_head_wall_thickness,
+      align = V_LEFT
     );
-    // cutout to pick the battery out
+    // cutouts to insert the battery
+    sz1 = cap_width / 2 + e;
+    sz2 = od / 2 + e;
+    tn = tan(pick_cut_angle / 2);
     translate([0, 0, switch_gap + e])
-    zrot(pick_cut_angle)
-      cuboid(
-        [pick_cut_width, infinity, infinity],
+      yflip_copy()
+      translate([0, sz1, 0])
+      prismoid(
+        size1 = [sz1 * tn, infinity],
+        size2 = [sz2 * tn, infinity],
+        h = sz2 - sz1,
+        orient = ORIENT_Y,
         align = V_BACK + V_UP
       );
   }
