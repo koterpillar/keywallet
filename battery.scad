@@ -14,18 +14,20 @@ switch_cut = 1.6;
 switch_length_l = 4;
 switch_length_r = 9;
 switch_width = 6;
-switch_gap = 1.2;
+switch_gap = 1;
 
 battery_threshold = 0.1;
 wall_thickness = 0.6;
 bed_inset_r = 2;
 
-cap_thickness = 0.8;
-cap_width = 5;
+cap_thickness = 1;
+cap_width = 3;
 
 wire_outer_length = 5;
 wire_thickness = 0.4;
 wire_wall_gap = 0.6;
+wire_trench_depth = wire_thickness;
+wire_trench_width = 0.8;
 
 pick_cut_angle = 163;
 
@@ -43,10 +45,10 @@ module battery(size, align = V_CENTER) {
   );
 }
 
-module wire_cutout(x, bottom, top, width, align = V_ZERO) {
+module wire_cutout(x, bottom, top, width, align = V_ZERO, gap = wire_wall_gap) {
   translate([x - align[0] * e, 0, bottom - e])
     cuboid(
-      [width + 2 * e, wire_wall_gap, top - bottom + 2 * e],
+      [width + 2 * e, gap, top - bottom + 2 * e],
       align = V_UP + align
     );
 }
@@ -113,8 +115,9 @@ module holder(size, battery = 0) {
     // wire cutout - battery wall and cover
     wire_cutout(
       x = id / 2 + wall_thickness,
+      gap = wire_trench_width,
       bottom = switch_gap + battery_h / 2,
-      top = switch_gap + battery_h + wire_thickness / 3,
+      top = switch_gap + battery_h + wire_trench_depth,
       width = wall_thickness + id - 8 * e,
       align = V_LEFT
     );
@@ -169,7 +172,8 @@ module switch_cutout(size, thickness = plate_thickness, shell = 0) {
   if (!shell) {
     wire_cutout(
       x = id / 2,
-      bottom = -wire_thickness / 3,
+      gap = wire_trench_width,
+      bottom = -wire_trench_depth,
       top = e,
       width = id / 2 + switch_length_l,
       align = V_LEFT
