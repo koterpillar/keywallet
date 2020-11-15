@@ -36,6 +36,9 @@ diode_long_leg_length = 28;
 diode_leg_inset = 0.7;
 diode_head_w = 4.9;
 diode_head_wall_thickness = 2;
+diode_head_trench_length = 8.5;
+diode_head_trench_width = 5;
+diode_head_trench_depth = 0.4;
 
 module battery(size, align = V_CENTER) {
   zcyl(
@@ -53,12 +56,13 @@ module wire_cutout(x, bottom, top, width, align = V_ZERO, gap = wire_wall_gap) {
     );
 }
 
+diode_x = diode_short_leg_length - switch_length_l;
+
 module holder(size, battery = 0) {
   battery_d = size[0];
   battery_h = size[1];
   id = battery_d + battery_threshold;
   od = id + wall_thickness * 2;
-  diode_x = diode_short_leg_length - switch_length_l;
 
   difference() {
     union() {
@@ -170,6 +174,15 @@ module switch_cutout(size, thickness = plate_thickness, shell = 0) {
     }
   }
   if (!shell) {
+    translate([diode_x, 0, e])
+      cuboid(
+        [
+          diode_head_trench_length,
+          diode_head_trench_width,
+          diode_head_trench_depth
+        ],
+        align = V_DOWN + V_RIGHT
+      );
     wire_cutout(
       x = id / 2,
       gap = wire_trench_width,
@@ -183,19 +196,19 @@ module switch_cutout(size, thickness = plate_thickness, shell = 0) {
 
 difference() {
   union() {
-  cuboid(
-    [25, 25, plate_thickness],
-    align = V_DOWN,
-    fillet = 10,
-    edges = EDGES_Z_ALL
-  );
-  translate([10, 0, 0])
-  cuboid(
-    [40, 12, plate_thickness],
-    align = V_DOWN,
-    fillet = 5,
-    edges = EDGES_Z_ALL
-  );
+    cuboid(
+      [25, 25, plate_thickness],
+      align = V_DOWN,
+      fillet = 10,
+      edges = EDGES_Z_ALL
+    );
+    translate([12, 0, 0])
+      cuboid(
+        [40, 12, plate_thickness],
+        align = V_DOWN,
+        fillet = 5,
+        edges = EDGES_Z_ALL
+      );
   }
   switch_cutout(CR2032);
 }
