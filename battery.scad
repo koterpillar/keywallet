@@ -14,7 +14,7 @@ switch_cut = 1.6;
 switch_length_l = 4;
 switch_length_r = 9;
 switch_width = 6;
-switch_gap = 1;
+switch_gap = 1.2;
 
 battery_threshold = 0.1;
 wall_thickness = 0.6;
@@ -27,7 +27,7 @@ wire_outer_length = 5;
 wire_thickness = 0.4;
 wire_wall_gap = 0.6;
 
-pick_cut_angle = 160;
+pick_cut_angle = 163;
 
 diode_short_leg_length = 26;
 diode_long_leg_length = 28;
@@ -43,20 +43,20 @@ module battery(size, align = V_CENTER) {
   );
 }
 
+module wire_cutout(x, bottom, top, width, align = V_ZERO) {
+  translate([x - align[0] * e, 0, bottom - e])
+    cuboid(
+      [width + 2 * e, wire_wall_gap, top - bottom + 2 * e],
+      align = V_UP + align
+    );
+}
+
 module holder(size, battery = 0) {
   battery_d = size[0];
   battery_h = size[1];
   id = battery_d + battery_threshold;
   od = id + wall_thickness * 2;
   diode_x = diode_short_leg_length - switch_length_l;
-
-  module wire_cutout(x, bottom, top, width = 8, align = V_ZERO) {
-    translate([x - align[0] * e, 0, bottom - e])
-      cuboid(
-        [width + 2 * e, wire_wall_gap, top - bottom + 2 * e],
-        align = V_UP + align
-      );
-  }
 
   difference() {
     union() {
@@ -70,6 +70,7 @@ module holder(size, battery = 0) {
         // space for switch to flex
         translate([0, 0, switch_gap])
           switch_cutout(
+            size,
             thickness = switch_gap,
             shell = 1
           );
@@ -103,9 +104,11 @@ module holder(size, battery = 0) {
     }
     // wire cutout - battery wall, bottom
     wire_cutout(
-      x = id / 2,
+      x = od / 2,
       bottom = 0,
-      top = diode_leg_inset + wire_thickness
+      top = diode_leg_inset + wire_thickness,
+      width = od / 2 - switch_length_r,
+      align = V_LEFT
     );
     // wire cutout - battery wall and cover
     wire_cutout(
@@ -140,7 +143,9 @@ module holder(size, battery = 0) {
   }
 }
 
-module switch_cutout(thickness = plate_thickness, shell = 0) {
+module switch_cutout(size, thickness = plate_thickness, shell = 0) {
+  battery_d = size[0];
+  id = battery_d + battery_threshold;
   thickness = thickness + 2 * e;
   module s(width, ee = 0) {
     translate([-switch_length_l, 0, -ee]) {
@@ -161,6 +166,15 @@ module switch_cutout(thickness = plate_thickness, shell = 0) {
       if (!shell) { s(switch_width, e); }
     }
   }
+  if (!shell) {
+    wire_cutout(
+      x = id / 2,
+      bottom = -wire_thickness / 3,
+      top = e,
+      width = id / 2 + switch_length_l,
+      align = V_LEFT
+    );
+  }
 }
 
 difference() {
@@ -179,7 +193,7 @@ difference() {
     edges = EDGES_Z_ALL
   );
   }
-  switch_cutout();
+  switch_cutout(CR2032);
 }
 
 holder(CR2032);

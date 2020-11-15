@@ -145,7 +145,7 @@ module key_plate() {
       all_notches();
       screw_cap_2_clearance();
       translate([0, 0, plate_thickness])
-      switch_cutout();
+      switch_cutout(CR2032);
     }
   }
   // enable to see screw caps
