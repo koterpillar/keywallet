@@ -17,19 +17,17 @@ switch_width = 6;
 switch_gap = 1;
 
 battery_threshold = 0.1;
-wall_thickness = 0.6;
-bed_inset_r = 2;
+wall_thickness = 1.2;
+wall_width = 6;
+wall_rot = -5;
 
 cap_thickness = 1;
 cap_width = 3;
 
-wire_outer_length = 5;
 wire_thickness = 0.4;
 wire_wall_gap = 0.6;
 wire_trench_depth = wire_thickness;
 wire_trench_width = 0.8;
-
-pick_cut_angle = 163;
 
 diode_short_leg_length = 26;
 diode_long_leg_length = 28;
@@ -40,9 +38,9 @@ diode_head_trench_length = 8.5;
 diode_head_trench_width = 5;
 diode_head_trench_depth = 0.4;
 
-module battery(size, align = V_CENTER) {
+module battery(size, align = V_CENTER, threshold = 0) {
   zcyl(
-    d = size[0],
+    d = size[0] + 2 * threshold,
     h = size[1],
     align = align
   );
@@ -70,7 +68,7 @@ module holder(size, battery = 0) {
       difference() {
         zcyl(
           h = switch_gap,
-          d = od,
+          d = id,
           align = V_UP
         );
         // space for switch to flex
@@ -81,14 +79,21 @@ module holder(size, battery = 0) {
             shell = 1
           );
       }
-      // main part of side wall
-      translate([0, 0, switch_gap - e])
-        tube(
-          h = battery_h,
-          id = id,
-          od = od
-        );
-      // cap holder
+      // side wall
+      translate([0, 0, -e])
+        intersection() {
+          tube(
+            h = battery_h + switch_gap,
+            id = id,
+            od = od
+          );
+          zrot(wall_rot)
+            cuboid(
+              [infinity, wall_width, battery_h + switch_gap],
+              align = V_UP
+            );
+        }
+      // cap bridge
       translate([0, 0, switch_gap + battery_h - e])
         intersection() {
           zcyl(
@@ -104,10 +109,13 @@ module holder(size, battery = 0) {
       // diode holder - wire side
       translate([diode_x, 0, -e])
         cuboid(
-          [diode_head_wall_thickness, diode_head_w + 2 * wall_thickness, switch_gap + battery_h],
+          [diode_head_wall_thickness, diode_head_w + wall_thickness, switch_gap + battery_h],
           align = V_LEFT + V_UP
         );
     }
+    // battery
+    translate([0, 0, switch_gap - e])
+      battery(size, align = V_UP, threshold = battery_threshold);
     // wire cutout - battery wall, bottom
     wire_cutout(
       x = od / 2,
@@ -133,20 +141,6 @@ module holder(size, battery = 0) {
       width = diode_head_wall_thickness,
       align = V_LEFT
     );
-    // cutouts to insert the battery
-    sz1 = cap_width / 2 + e;
-    sz2 = od / 2 + e;
-    tn = tan(pick_cut_angle / 2);
-    translate([0, 0, switch_gap + e])
-      yflip_copy()
-      translate([0, sz1, 0])
-      prismoid(
-        size1 = [sz1 * tn, infinity],
-        size2 = [sz2 * tn, infinity],
-        h = sz2 - sz1,
-        orient = ORIENT_Y,
-        align = V_BACK + V_UP
-      );
   }
 }
 
