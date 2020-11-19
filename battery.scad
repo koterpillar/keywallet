@@ -14,7 +14,7 @@ switch_cut = 1.6;
 switch_length_l = 4;
 switch_length_r = 9;
 switch_width = 6;
-switch_gap = 1;
+switch_gap = 0.7;
 
 battery_threshold = 0.1;
 wall_thickness = 1.2;

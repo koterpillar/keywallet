@@ -132,20 +132,27 @@ module all_notches() {
   yflip() xflip() notches(key_R_U);
 }
 
+module battery_attach() {
+  translate([0, 0, plate_thickness])
+    zrot(180)
+    children();
+}
+
 module key_plate() {
   difference() {
     union () {
       plate();
       supports();
       pads();
-      holder(CR2032);
+      battery_attach()
+        holder(CR2032);
     }
     {
       cutouts();
       all_notches();
       screw_cap_2_clearance();
-      translate([0, 0, plate_thickness])
-      switch_cutout(CR2032);
+      battery_attach()
+        switch_cutout(CR2032);
     }
   }
   // enable to see screw caps
