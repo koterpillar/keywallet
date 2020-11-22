@@ -6,6 +6,7 @@ use <BOSL/transforms.scad>
 include <environment.scad>
 use <utils.scad>
 include <constants.scad>
+include <keys.scad>
 
 $fa = 1;
 $fs = 0.2;
@@ -65,8 +66,7 @@ module holder(size, max_thickness = undef, battery = 0) {
   total_thickness = switch_gap + battery_h + cap_thickness;
 
   if (!is_undef(max_thickness)) {
-    echo(str("total thickness ", total_thickness, " must not be greater than ", max_thickness));
-    assert(total_thickness <= max_thickness);
+    assert(total_thickness <= max_thickness, str("total thickness ", total_thickness, " must not be greater than ", max_thickness));
   }
 
   difference() {
@@ -189,7 +189,7 @@ module switch_cutout(size, thickness = plate_thickness, shell = 0) {
       gap = wire_trench_width,
       bottom = -wire_trench_depth,
       top = e,
-      width = id / 2 + switch_length_l,
+      width = id / 2 + switch_length_l + switch_width / 2,
       align = V_LEFT
     );
   }
@@ -214,4 +214,4 @@ difference() {
   switch_cutout(CR2032);
 }
 
-holder(CR2032);
+holder(CR2032, max_thickness = key_max_thickness);

@@ -6,40 +6,13 @@ use <BOSL/transforms.scad>
 include <environment.scad>
 use <utils.scad>
 include <constants.scad>
-
+include <keys.scad>
 use <battery.scad>
 use <cutout.scad>
 use <plate.scad>
 
 $fa = 1;
 $fs = 0.2;
-
-KEY_THICKNESS = 0;
-KEY_SUPPORT_INSET = 1;
-KEY_CUTOUT = 2;
-KEY_LENGTH = 3;
-KEY_NOTCHES = 4;
-
-// house
-key_L_D = [2.1, 9.5, 7.5, 35, 3];
-
-// trolley
-key_L_U = [2.4, 17, 15, 35, 0];
-
-// USB
-key_R_D = [4.4, 13, 7.5, 35, 0];
-
-// bike
-key_R_U = [4.9, 17, 15, 35, 0];
-
-keys = [
-  key_L_D,
-  key_L_U,
-  key_R_D,
-  key_R_U,
-];
-
-thickness = max([for (k = keys) k[KEY_THICKNESS]]);
 
 module support(key) {
   inset = key[KEY_SUPPORT_INSET];
@@ -54,7 +27,7 @@ module support(key) {
 
   translate([x - plate_width / 2, length - y, plate_thickness - e])
     cuboid(
-      [width, length, thickness + e],
+      [width, length, key_max_thickness + e],
       align = V_RIGHT + V_FWD + V_UP,
       fillet = rounding,
       edges = EDGES_Z_ALL
@@ -76,7 +49,7 @@ module pad(key) {
   yflip()
   translate([plate_width / 2 - hole_x, plate_height / 2 - hole_y(), plate_thickness - e])
     tube(
-      h = thickness - key[KEY_THICKNESS],
+      h = key_max_thickness - key[KEY_THICKNESS],
       id = screw_d,
       od = width,
       od2 = width - chamfer,
@@ -145,7 +118,7 @@ module key_plate() {
       supports();
       pads();
       battery_attach()
-        holder(CR2032, max_thickness = thickness);
+        holder(CR2032, max_thickness = key_max_thickness);
     }
     {
       cutouts();
