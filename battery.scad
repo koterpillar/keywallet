@@ -14,14 +14,14 @@ switch_cut = 1.6;
 switch_length_l = 4;
 switch_length_r = 9;
 switch_width = 6;
-switch_gap = 0.7;
+switch_gap = 0.8;
 
 battery_threshold = 0.1;
 wall_thickness = 1.2;
 wall_width = 6;
 wall_rot = -5;
 
-cap_thickness = 1;
+cap_thickness = 0.9;
 cap_width = 3;
 
 wire_thickness = 0.4;
@@ -56,11 +56,18 @@ module wire_cutout(x, bottom, top, width, align = V_ZERO, gap = wire_wall_gap) {
 
 diode_x = diode_short_leg_length - switch_length_l;
 
-module holder(size, battery = 0) {
+module holder(size, max_thickness = undef, battery = 0) {
   battery_d = size[0];
   battery_h = size[1];
   id = battery_d + battery_threshold;
   od = id + wall_thickness * 2;
+
+  total_thickness = switch_gap + battery_h + cap_thickness;
+
+  if (!is_undef(max_thickness)) {
+    echo(str("total thickness ", total_thickness, " must not be greater than ", max_thickness));
+    assert(total_thickness <= max_thickness);
+  }
 
   difference() {
     union() {

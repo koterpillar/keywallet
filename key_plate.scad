@@ -45,16 +45,16 @@ module support(key) {
   inset = key[KEY_SUPPORT_INSET];
   x = key[KEY_LENGTH] + hole_x;
   width = 2;
-  height = 8;
+  length = 8;
   rounding = 1;
 
-  assert(inset + height < plate_height / 2);
+  assert(inset + length < plate_height / 2);
 
   y = plate_height / 2 - inset;
 
-  translate([x - plate_width / 2, height - y, plate_thickness - e])
+  translate([x - plate_width / 2, length - y, plate_thickness - e])
     cuboid(
-      [width, height, thickness + e],
+      [width, length, thickness + e],
       align = V_RIGHT + V_FWD + V_UP,
       fillet = rounding,
       edges = EDGES_Z_ALL
@@ -145,7 +145,7 @@ module key_plate() {
       supports();
       pads();
       battery_attach()
-        holder(CR2032);
+        holder(CR2032, max_thickness = thickness);
     }
     {
       cutouts();
