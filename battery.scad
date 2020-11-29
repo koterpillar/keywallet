@@ -128,7 +128,7 @@ module holder(size, max_thickness = undef, battery = 0) {
     // wire cutout - battery wall, bottom
     wire_cutout(
       x = od / 2,
-      bottom = 0,
+      bottom = -e,
       top = diode_leg_inset + wire_thickness,
       width = od / 2 - switch_length_r,
       align = V_LEFT
@@ -188,14 +188,23 @@ module switch_cutout(size, shell = 0) {
         ],
         align = V_DOWN + V_RIGHT
       );
+    depth = switch_gap_down + wire_trench_depth;
     wire_cutout(
       x = id / 2,
       gap = wire_trench_width,
-      bottom = -switch_gap_down - wire_trench_depth,
+      bottom = -depth,
       top = e,
       width = id / 2 + switch_length_l + switch_width / 2,
       align = V_LEFT
     );
+    translate([id / 2, 0, -depth / 2])
+      prismoid(
+        size1 = [wire_trench_width, depth],
+        size2 = [wire_trench_width, depth],
+        h = diode_x - id / 2,
+        shift = [0, depth + diode_leg_inset],
+        orient = ORIENT_X
+      );
   }
 }
 
