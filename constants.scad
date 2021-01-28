@@ -1,6 +1,6 @@
 card_tolerance = 0.2;
 
-cards_thickness = 3.4;
+cards_thickness = 4.4;
 
 card_wall = 1.5;
 
