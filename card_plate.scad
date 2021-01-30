@@ -194,4 +194,13 @@ module card_plate() {
   card_plate_bottom();
 }
 
-card_plate();
+module card_plate_print() {
+  ydistribute(spacing = plate_height + 20) {
+    card_plate_bottom();
+    xrot(180)
+      translate([0, 0, -plate_thickness - cards_thickness - thin_thickness])
+      card_plate_top();
+  }
+}
+
+card_plate_print();
