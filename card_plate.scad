@@ -44,6 +44,10 @@ flip_spacing = 0.5;
 
 flip_offset = card_box_thickness + flip_spacing;
 
+snap_fit_threshold = 0.1;
+snap_fit_tooth_width = 0.6;
+snap_fit_tooth_height = 1.9;
+
 module card_plate() {
   push_cutout_width = 30;
   push_cutout_depth = 10;
@@ -102,6 +106,51 @@ module card_plate() {
         // cutout for pushing cards out
         translate([0, -plate_height / 2, 0])
           cutout(push_cutout_width, push_cutout_depth, thickness = card_box_thickness + 2 * e);
+        // cutouts for screws
+        translate([0, 0, -plate_thickness])
+          screw_cap_clearance();
+      }
+    }
+  }
+}
+
+module card_plate_bottom() {
+  push_cutout_width = 30;
+  push_cutout_depth = 10;
+
+  difference() {
+    difference() {
+      plate();
+      screw_cap_clearance();
+    }
+    plate_thinning();
+  }
+  // enable to see screw caps
+  // color("red", 0.5) screw_cap();
+
+  translate([0, 0, plate_thickness]) {
+    // card box
+    difference() {
+      union() {
+        // card box walls
+        wall_length = card_box_height - 2 * card_wall - 2 * snap_fit_threshold;
+        xflip_copy()
+          translate([card_width_t / 2, 0, 0])
+          difference() {
+            cuboid(
+              [card_wall, wall_length, cards_thickness - snap_fit_threshold],
+              align = V_UP + V_RIGHT
+            );
+            translate([card_wall - snap_fit_tooth_width, 0, e])
+              cuboid(
+                [snap_fit_tooth_width * 2 + e, wall_length + 2 * e, snap_fit_tooth_height + snap_fit_threshold],
+                align = V_UP + V_RIGHT,
+                chamfer = snap_fit_tooth_width,
+                edges = EDGE_TOP_LF
+              );
+          }
+      }
+      union() {
         // cutouts for screws
         translate([0, 0, -plate_thickness])
           screw_cap_clearance();
