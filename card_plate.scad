@@ -142,22 +142,21 @@ module card_plate_top() {
         // card box roof
         top_lock_width = 20;
         top_lock_height = 20;
-        top_lock_inset = card_thickness * 2;
+        top_lock_inset = card_thickness;
 
-        translate([0, 0, cards_thickness + thin_thickness / 2 - e])
-          apply_indentation(
-            origin = [0, card_box_height / 2, 0],
-            width = top_lock_width,
-            height = top_lock_height,
-            thickness = thin_thickness + e,
-            inset = top_lock_inset
-          ) {
-            cuboid(
-              [card_box_width + 2 * card_wall, card_box_height, thin_thickness + e],
-              fillet = card_wall,
-              edges = EDGES_Z_ALL
+        translate([0, 0, cards_thickness + thin_thickness / 2 - e]) {
+          cuboid(
+            [card_box_width + 2 * card_wall, card_box_height, thin_thickness + e],
+            fillet = card_wall,
+            edges = EDGES_Z_ALL
+          );
+          translate([0, card_box_height / 2, -thin_thickness / 2 + e])
+            indentation(
+              width = top_lock_width,
+              height = top_lock_height,
+              inset = top_lock_inset
             );
-          }
+        }
       }
       union() {
         // cutout for tooth snap fit
