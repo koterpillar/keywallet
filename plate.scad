@@ -20,7 +20,7 @@ module hole() {
   translate([0, 0, -e])
   zcyl(
     h = plate_thickness + 2 * e,
-    d = screw_d,
+    d = screw_d + 0.8,
     align = V_TOP
   );
 }
@@ -57,11 +57,11 @@ module screw_cap_2(height = screw_2_cap_h, threshold = 0) {
 }
 
 module screw_cap_clearance() {
-  screw_cap(height = 20, threshold = screw_threshold);
+  screw_cap(height = 20, threshold = 0.3);
 }
 
 module screw_cap_2_clearance() {
-  screw_cap_2(height = 20, threshold = screw_threshold);
+  screw_cap_2(height = 20, threshold = 0.3);
 }
 
 rounding = 5;
