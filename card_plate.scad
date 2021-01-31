@@ -49,6 +49,7 @@ tooth_width = 0.6;
 tooth_height = 1.9;
 snap_width = 0.3;
 snap_edge_width = 0.3;
+snap_twist_height = 5;
 
 wall_length = card_box_height - card_wall - 2 * snap_fit_threshold;
 
@@ -62,35 +63,48 @@ module tooth(o) {
 
   tooth_x = snap_x + (o + 1) * sp + e;
   tooth_h = cards_thickness + (o - 1) * snap_fit_threshold + 2 * e;
+  tooth_length = o == TOOTH_ADD ? wall_length - snap_twist_height : wall_length + 2 * e;
 
   xflip_copy() {
-    translate([tooth_x, card_wall / 2, -e]) {
+    translate([tooth_x, -wall_length / 2 - e + card_wall / 2, -e]) {
       difference() {
         cuboid(
-          [tooth_width, wall_length + 2 * e, tooth_height - o * sp],
-          align = V_UP + V_LEFT
+          [tooth_width, tooth_length, tooth_height - o * sp],
+          align = V_UP + V_LEFT + V_BACK
         );
         translate([-tooth_width, 0, tooth_height - o * sp])
           chamfer_mask_y(
-            l = wall_length + 2 * e,
-            chamfer = tooth_width
+            l = tooth_length,
+            chamfer = tooth_width,
+            align = V_BACK
           );
+        if (o == TOOTH_ADD) {
+        }
       }
     }
 
     translate([tooth_x, card_wall / 2 + wall_length / 2 + e, -e]) {
       edge_y = snap_edge_width + tooth_width;
+      edge_h = o == TOOTH_ADD ? tooth_h : tooth_h;
       difference() {
         cuboid(
-          [snap_width, edge_y, tooth_h],
+          [snap_width, edge_y, edge_h],
           align = V_UP + V_LEFT + V_FWD
         );
         translate([-snap_width, -edge_y, 0])
           chamfer_mask_z(
-            l = tooth_h,
+            l = edge_h,
             chamfer = snap_width,
             align = V_UP
           );
+        if (o == TOOTH_ADD) {
+          translate([-snap_width, 0, edge_h])
+            chamfer_mask_y(
+              l = edge_y,
+              chamfer = snap_width,
+              align = V_FWD
+            );
+        }
       }
     }
   }
@@ -146,6 +160,13 @@ module card_plate_top() {
           }
       }
       union() {
+        // cutout for tooth snap fit
+        xflip_copy()
+          translate([snap_x + snap_fit_threshold, card_box_height / 2 + e, cards_thickness - 2 * e])
+          cuboid(
+            [snap_fit_threshold * 2, snap_twist_height, thin_thickness + 4 * e],
+            align = V_UP + V_FWD
+          );
         // cutout for pushing cards out
         translate([0, -plate_height / 2, 0])
           cutout(push_cutout_width, push_cutout_depth, thickness = card_box_thickness + 2 * e);
