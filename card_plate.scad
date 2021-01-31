@@ -45,8 +45,9 @@ flip_spacing = 0.5;
 flip_offset = card_box_thickness + flip_spacing;
 
 snap_fit_threshold = 0.1;
-snap_fit_tooth_width = 0.6;
-snap_fit_tooth_height = 1.9;
+tooth_width = 0.6;
+tooth_height = 1.9;
+snap_width = 0.3;
 snap_edge_width = 0.3;
 
 wall_length = card_box_height - card_wall - 2 * snap_fit_threshold;
@@ -54,7 +55,7 @@ wall_length = card_box_height - card_wall - 2 * snap_fit_threshold;
 TOOTH_CUT = -1;
 TOOTH_ADD = 1;
 
-snap_x = card_width_t / 2 + snap_fit_tooth_width / 2 + card_wall;
+snap_x = card_width_t / 2 + tooth_width / 2 + card_wall;
 
 module tooth(o) {
   sp = snap_fit_threshold;
@@ -66,28 +67,28 @@ module tooth(o) {
     translate([tooth_x, card_wall / 2, -e]) {
       difference() {
         cuboid(
-          [snap_fit_tooth_width, wall_length + 2 * e, snap_fit_tooth_height - o * sp],
+          [tooth_width, wall_length + 2 * e, tooth_height - o * sp],
           align = V_UP + V_LEFT
         );
-        translate([-snap_fit_tooth_width, 0, snap_fit_tooth_height - o * sp])
+        translate([-tooth_width, 0, tooth_height - o * sp])
           chamfer_mask_y(
             l = wall_length + 2 * e,
-            chamfer = snap_fit_tooth_width
+            chamfer = tooth_width
           );
       }
     }
 
     translate([tooth_x, card_wall / 2 + wall_length / 2 + e, -e]) {
-      edge_y = snap_edge_width + snap_fit_tooth_width;
+      edge_y = snap_edge_width + tooth_width;
       difference() {
         cuboid(
-          [snap_fit_tooth_width, edge_y, tooth_h],
+          [snap_width, edge_y, tooth_h],
           align = V_UP + V_LEFT + V_FWD
         );
-        translate([-snap_fit_tooth_width, -edge_y, 0])
+        translate([-snap_width, -edge_y, 0])
           chamfer_mask_z(
             l = tooth_h,
-            chamfer = snap_fit_tooth_width,
+            chamfer = snap_width,
             align = V_UP
           );
       }
