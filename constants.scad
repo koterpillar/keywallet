@@ -29,3 +29,6 @@ thin_chamfer = 2;
 
 card_width_t = card_width + 2 * card_tolerance;
 card_height_t = card_height + 2 * card_tolerance;
+
+POSITION_POSITIVE = 1;
+POSITION_NEGATIVE = -1;

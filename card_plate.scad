@@ -39,6 +39,30 @@ card_box_thickness = cards_thickness + thin_thickness;
 assert(card_box_width <= plate_width - 2 * hole_x - screw_cap_side + 2 * card_wall,
   "Not enough space for card box between screws");
 
+module alignment_notch(position) {
+  thickness = 0.6;
+  height = 5;
+  tolerance = 0.1;
+
+  d = position == POSITION_POSITIVE ? -tolerance / 2 : tolerance / 2;
+  width = card_wall + d * 2;
+
+  translate([0, 0, -e])
+  cuboid(
+    [width, height + d * 2, thickness + e],
+    align = V_UP,
+    fillet = width / 2 - e,
+    edges = EDGES_Z_ALL
+  );
+}
+
+module alignment_notches(position) {
+  xflip_copy()
+    translate([card_box_width / 2 - card_wall / 2, 0, plate_thickness])
+    zflip()
+    alignment_notch(position);
+}
+
 module card_plate_top() {
   push_cutout_width = 30;
   push_cutout_depth = 10;
@@ -95,15 +119,20 @@ module card_plate_top() {
       }
     }
   }
+
+  alignment_notches(POSITION_POSITIVE);
 }
 
 module card_plate_bottom() {
   difference() {
-    difference() {
+    union() {
       plate();
-      screw_cap_clearance();
     }
-    plate_thinning();
+    union() {
+      screw_cap_clearance();
+      plate_thinning();
+      alignment_notches(POSITION_NEGATIVE);
+    }
   }
   // enable to see screw caps
   // color("red", 0.5) screw_cap();
