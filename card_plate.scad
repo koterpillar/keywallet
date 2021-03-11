@@ -64,8 +64,8 @@ module alignment_notches(position) {
 }
 
 module card_plate_top() {
-  push_cutout_width = 30;
-  push_cutout_depth = 10;
+  push_cutout_width = 25;
+  push_cutout_depth = 15;
 
   // enable to see screw caps
   // color("red", 0.5) screw_cap();
