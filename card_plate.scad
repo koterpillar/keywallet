@@ -101,12 +101,6 @@ module card_plate_top() {
             fillet = card_wall,
             edges = EDGES_Z_ALL
           );
-          translate([0, card_box_height / 2, -thin_thickness / 2 + e])
-            indentation(
-              width = top_lock_width,
-              height = top_lock_height,
-              inset = top_lock_inset
-            );
         }
       }
       union() {
