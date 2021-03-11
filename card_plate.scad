@@ -40,8 +40,8 @@ assert(card_box_width <= plate_width - 2 * hole_x - screw_cap_side + 2 * card_wa
   "Not enough space for card box between screws");
 
 module alignment_notch(position) {
-  thickness = 0.6;
-  height = 5;
+  thickness = 0.7;
+  height = 3;
   tolerance = 0.1;
 
   d = position == POSITION_POSITIVE ? -tolerance / 2 : tolerance / 2;
@@ -49,7 +49,7 @@ module alignment_notch(position) {
 
   translate([0, 0, -e])
   cuboid(
-    [width, height + d * 2, thickness + e],
+    [width, height + d * 2, thickness + d + e],
     align = V_UP,
     fillet = width / 2 - e,
     edges = EDGES_Z_ALL
@@ -57,8 +57,8 @@ module alignment_notch(position) {
 }
 
 module alignment_notches(position) {
-  xflip_copy()
-    translate([card_box_width / 2 - card_wall / 2, 0, plate_thickness])
+  xyflip_copy()
+    translate([card_box_width / 2 - card_wall / 2, 25, plate_thickness])
     zflip()
     alignment_notch(position);
 }
