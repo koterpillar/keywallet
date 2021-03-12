@@ -63,9 +63,26 @@ module alignment_notches(position) {
     alignment_notch(position);
 }
 
+module cut_in(height, thickness, width = 0.6) {
+  rounding = 3;
+  translate([0, 0, -e])
+    cuboid(
+      [width, height, thickness + 2 * e],
+      align = V_UP + V_FWD
+    );
+  xflip_copy()
+    translate([width / 2, 0, -e])
+    fillet_mask(l = thickness + 2 * e, r = rounding, align = V_UP);
+}
+
+cards_space_max = cards_thickness - cards_thickness_min;
+
 module card_plate_top() {
-  push_cutout_width = 25;
+  push_cutout_width = 35;
   push_cutout_depth = 15;
+
+  retainer_width = 30;
+  retainer_depth = 20;
 
   // enable to see screw caps
   // color("red", 0.5) screw_cap();
@@ -83,9 +100,9 @@ module card_plate_top() {
             edges = EDGES_Z_ALL
           );
           // card space box
-          translate([0, card_wall / 2, -e])
+          translate([0, 0, -e])
             cuboid(
-              [card_width_t, card_height_t + card_wall + e, cards_thickness + 2 * e],
+              [card_width_t, card_height_t + e, cards_thickness + 2 * e],
               align = V_UP
             );
         }
@@ -106,7 +123,31 @@ module card_plate_top() {
       union() {
         // cutout for pushing cards out
         translate([0, -plate_height / 2, 0])
-          cutout(push_cutout_width, push_cutout_depth, thickness = card_box_thickness + 2 * e);
+          cutout(
+            base_width = push_cutout_width,
+            depth = push_cutout_depth,
+            thickness = card_box_thickness + 2 * e
+          );
+        // cuts for the retainer to bend
+        xflip_copy()
+          translate([retainer_width / 2, plate_height / 2, 0])
+          cut_in(
+            height = retainer_depth,
+            thickness = cards_thickness + thin_thickness
+          );
+        // remove walls except for the retainer
+        xflip_copy()
+          translate([retainer_width / 2, plate_height / 2 + e, -e])
+          cuboid(
+            [(card_width_t - retainer_width) / 2, card_wall + 2 * e, cards_thickness + 2 * e],
+            align = V_UP + V_FWD + V_RIGHT
+          );
+        // cut retainer wall
+        translate([0, plate_height / 2 + e, -e])
+          cuboid(
+            [retainer_width, card_wall + 2 * e, cards_thickness_min + e],
+            align = V_UP + V_FWD
+          );
         // cutouts for screws
         translate([0, 0, -plate_thickness])
           screw_cap_clearance();
