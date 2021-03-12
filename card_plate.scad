@@ -63,7 +63,7 @@ module alignment_notches(position) {
     alignment_notch(position);
 }
 
-module cut_in(height, thickness, width = 0.6) {
+module cut_in(height, thickness, width = cut_width) {
   rounding = 3;
   translate([0, 0, -e])
     cuboid(
@@ -158,6 +158,55 @@ module card_plate_top() {
   alignment_notches(POSITION_POSITIVE);
 }
 
+pusher_width = 5;
+pusher_tip_height = 3;
+pusher_tip_width = 4;
+pusher_base_height = 10;
+pusher_spring_height = 15;
+pusher_fillet = 2;
+
+module pusher() {
+  difference() {
+    union() {
+      cuboid(
+        [
+          pusher_width,
+          pusher_spring_height,
+          thin_thickness
+        ],
+        align = V_UP
+      );
+      translate([0, (pusher_base_height - pusher_spring_height) / 2, thin_thickness - e])
+        rounded_prismoid(
+          size1 = [pusher_width, pusher_base_height],
+          size2 = [pusher_tip_width, pusher_tip_height],
+          h = plate_thickness + cards_space_max - thin_thickness,
+          r = pusher_fillet,
+          align = V_UP
+        );
+    }
+    union() {
+      xflip_copy()
+        translate([pusher_width / 2, -pusher_spring_height / 2, 0])
+        fillet_mask(l = 10, r = pusher_fillet, align = V_UP);
+    }
+  }
+}
+
+module pusher_cut() {
+  translate([0, -cut_width / 2, -e])
+  cuboid(
+    [
+      pusher_width + cut_width * 2,
+      pusher_spring_height + cut_width - 2 * e,
+      plate_thickness + 2 * e
+    ],
+    align = V_UP,
+    fillet = pusher_fillet + cut_width,
+    edges = EDGES_Z_FR
+  );
+}
+
 module card_plate_bottom() {
   difference() {
     union() {
@@ -167,8 +216,10 @@ module card_plate_bottom() {
       screw_cap_clearance();
       plate_thinning();
       alignment_notches(POSITION_NEGATIVE);
+      pusher_cut();
     }
   }
+  pusher();
   // enable to see screw caps
   // color("red", 0.5) screw_cap();
 }

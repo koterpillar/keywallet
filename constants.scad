@@ -28,6 +28,8 @@ plate_border = 5;
 thin_thickness = 0.6;
 thin_chamfer = 2;
 
+cut_width = 0.6;
+
 card_width_t = card_width + 2 * card_tolerance;
 card_height_t = card_height + 2 * card_tolerance;
 
