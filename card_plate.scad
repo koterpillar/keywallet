@@ -63,8 +63,9 @@ module alignment_notches(position) {
     alignment_notch(position);
 }
 
+cut_in_rounding = 3;
+
 module cut_in(height, thickness, width = cut_width) {
-  rounding = 3;
   translate([0, 0, -e])
     cuboid(
       [width, height, thickness + 2 * e],
@@ -72,17 +73,34 @@ module cut_in(height, thickness, width = cut_width) {
     );
   xflip_copy()
     translate([width / 2, 0, -e])
-    fillet_mask(l = thickness + 2 * e, r = rounding, align = V_UP);
+    fillet_mask(l = thickness + 2 * e, r = cut_in_rounding, align = V_UP);
 }
 
 cards_space_max = cards_thickness - cards_thickness_min;
 
+retainer_width = 30;
+retainer_depth = 20;
+
+module walls() {
+  difference() {
+    cuboid(
+      [card_box_width, card_box_height, cards_thickness],
+      align = V_UP,
+      fillet = card_wall,
+      edges = EDGES_Z_ALL
+    );
+    // card space box
+    translate([0, 0, -e])
+      cuboid(
+        [card_width_t, card_height_t + e, cards_thickness + 2 * e],
+        align = V_UP
+      );
+  }
+}
+
 module card_plate_top() {
   push_cutout_width = 35;
   push_cutout_depth = 15;
-
-  retainer_width = 30;
-  retainer_depth = 20;
 
   // enable to see screw caps
   // color("red", 0.5) screw_cap();
@@ -91,21 +109,7 @@ module card_plate_top() {
     // card box
     difference() {
       union() {
-        // card box walls
-        difference() {
-          cuboid(
-            [card_box_width, card_box_height, cards_thickness],
-            align = V_UP,
-            fillet = card_wall,
-            edges = EDGES_Z_ALL
-          );
-          // card space box
-          translate([0, 0, -e])
-            cuboid(
-              [card_width_t, card_height_t + e, cards_thickness + 2 * e],
-              align = V_UP
-            );
-        }
+        walls();
 
         // card box roof
         top_lock_width = 20;
@@ -220,6 +224,19 @@ module card_plate_bottom() {
     }
   }
   pusher();
+  // more walls
+  xflip_copy() {
+    h = cards_space_max + 2 * e;
+    xi = retainer_width / 2 + cut_width / 2;
+    translate([xi, plate_height / 2 + e, plate_thickness - e])
+      difference() {
+        cuboid(
+          [card_width_t / 2 - xi, card_wall + 2 * e, h],
+          align = V_UP + V_FWD + V_RIGHT
+        );
+        fillet_mask(l = h, r = cut_in_rounding, align = V_UP);
+      }
+    }
   // enable to see screw caps
   // color("red", 0.5) screw_cap();
 }
