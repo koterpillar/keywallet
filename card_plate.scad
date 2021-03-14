@@ -16,6 +16,9 @@ use <plate.scad>
 $fa = 1;
 $fs = 0.2;
 
+assert(card_width_t <= plate_width - 2 * hole_x - screw_cap_side,
+  "Not enough space for card box between screws");
+
 module plate_thinning() {
   thinning_width = card_width_t + 2 * card_wall - 2 * plate_border;
   thinning_height = card_height_t + 2 * card_wall - 2 * plate_border;
@@ -33,11 +36,9 @@ module plate_thinning() {
 }
 
 card_box_width = card_width_t + 2 * card_wall;
+card_box_width_base = card_width_t + 2 * card_wall_base;
 card_box_height = card_height_t + 2 * card_wall;
 card_box_thickness = cards_thickness + thin_thickness;
-
-assert(card_box_width <= plate_width - 2 * hole_x - screw_cap_side + 2 * card_wall,
-  "Not enough space for card box between screws");
 
 module alignment_notch(position) {
   thickness = 0.7;
@@ -81,23 +82,6 @@ cards_space_max = cards_thickness - cards_thickness_min;
 retainer_width = 30;
 retainer_depth = 20;
 
-module walls() {
-  difference() {
-    cuboid(
-      [card_box_width, card_box_height, cards_thickness],
-      align = V_UP,
-      fillet = card_wall,
-      edges = EDGES_Z_ALL
-    );
-    // card space box
-    translate([0, 0, -e])
-      cuboid(
-        [card_width_t, card_height_t + e, cards_thickness + 2 * e],
-        align = V_UP
-      );
-  }
-}
-
 module card_plate_top() {
   push_cutout_width = 35;
   push_cutout_depth = 15;
@@ -109,19 +93,20 @@ module card_plate_top() {
     // card box
     difference() {
       union() {
-        walls();
-
-        // card box roof
-        top_lock_width = 20;
-        top_lock_height = 20;
-        top_lock_inset = card_thickness;
-
-        translate([0, 0, cards_thickness + thin_thickness / 2 - e]) {
-          cuboid(
-            [card_box_width, card_box_height, thin_thickness + e],
-            fillet = card_wall,
-            edges = EDGES_Z_ALL
+        difference() {
+          rounded_prismoid(
+            size1 = [card_box_width_base, card_box_height],
+            size2 = [card_box_width, card_box_height],
+            h = cards_thickness + thin_thickness,
+            align = V_UP,
+            r = card_wall
           );
+          // card space box
+          translate([0, 0, -e])
+            cuboid(
+              [card_width_t, card_height_t + e, cards_thickness + 2 * e],
+              align = V_UP
+            );
         }
       }
       union() {

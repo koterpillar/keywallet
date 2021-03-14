@@ -4,6 +4,7 @@ cards_thickness = 4.4;
 cards_thickness_min = 2.2;
 
 card_wall = 1.5;
+card_wall_base = 3;
 
 screw_d = 3.8;
 screw_cap_side = 7.8;
