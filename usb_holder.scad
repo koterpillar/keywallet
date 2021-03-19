@@ -12,14 +12,22 @@ use <plate.scad>
 $fa = 1;
 $fs = 0.2;
 
+// Standard used: USB 3.1 Legacy Connector and Cable Specification
+// https://xdevs.com/doc/Standards/USB%203.1/usb_31_030215/USB_3_1_r1.0.pdf
+// See Figure 5-4
+
 module usb_holder() {
   chip_thickness = 1.4;
   chip_length = 24.9;
   chip_width = 11.3;
 
   slot_thickness = 2.0;
-  slot_width = 11.9;
-  slot_depth = 12.5;
+  width = 12; // from standard
+
+  dip_offset_x = 5.18; // from standard
+  dip_offset_y = 3; // from standard
+  dip_size_x = 2; // from standard
+  dip_size_y = 2.45; // from standard
 
   length = 35;
 
@@ -27,9 +35,9 @@ module usb_holder() {
     union() {
       // body
       cuboid(
-        [length, slot_width, slot_thickness],
+        [length, width, slot_thickness],
         align = V_RIGHT + V_BOTTOM,
-        fillet = slot_width / 2 - e,
+        fillet = width / 2 - e,
         edges = EDGES_Z_RT
       );
     }
@@ -42,13 +50,13 @@ module usb_holder() {
       );
       // usb fit holes
       yflip_copy()
-        translate([5.2, 1.7, e])
+        translate([dip_offset_x, dip_offset_y, e])
         cuboid(
-          [1.8, 2.2, slot_thickness + 2 * e],
-          align = V_RIGHT + V_BACK + V_BOTTOM
+          [dip_size_x, dip_size_y, slot_thickness + 2 * e],
+          align = V_RIGHT + V_BOTTOM
         );
       // screw hole
-      translate([length - slot_width / 2, 0, -slot_thickness])
+      translate([length - width / 2, 0, -slot_thickness])
         hole(thickness = slot_thickness);
     }
   }
