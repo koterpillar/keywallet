@@ -7,10 +7,7 @@ include <environment.scad>
 use <utils.scad>
 include <constants.scad>
 
-use <card_slider.scad>
 use <cutout.scad>
-use <hinge.scad>
-use <indentation.scad>
 use <plate.scad>
 
 $fa = 1;
