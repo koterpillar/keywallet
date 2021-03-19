@@ -16,10 +16,10 @@ function hole_y() = hole_y;
 hole_spacing_x = plate_width - 2 * hole_x;
 function hole_spacing_x() = hole_spacing_x;
 
-module hole() {
+module hole(thickness = plate_thickness) {
   translate([0, 0, -e])
   zcyl(
-    h = plate_thickness + 2 * e,
+    h = thickness + 2 * e,
     d = screw_d + 0.8,
     align = V_TOP
   );
