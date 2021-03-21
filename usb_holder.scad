@@ -83,3 +83,6 @@ module spacer(thickness) {
 }
 
 usb_holder();
+
+translate([27, -20, -slot_thickness])
+  spacer(4.4 - slot_thickness);
