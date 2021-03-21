@@ -72,4 +72,11 @@ module usb_holder() {
   }
 }
 
+module spacer(thickness) {
+  difference() {
+    zcyl(l = thickness, r = hole_x, align = V_TOP);
+    hole(thickness = thickness);
+  }
+}
+
 usb_holder();
