@@ -32,14 +32,17 @@ length = 45;
 width = 16;
 fillet = 2;
 
+tolerance = 0.1;
+
 module usb_holder() {
   assert(fillet <= (width - slot_width) / 2, str("fillet ", fillet, " must fit into ", (width - slot_width) / 2));
 
   difference() {
     union() {
-      // body
+      // lip under chip
+      translate([0, 0, -chip_thickness])
       cuboid(
-        [slot_depth, slot_width, slot_thickness],
+        [slot_depth, slot_width, slot_thickness - chip_thickness],
         align = V_RIGHT + V_BOTTOM
       );
       // wider body
@@ -55,7 +58,7 @@ module usb_holder() {
       // chip
       translate([-e, 0, e])
       cuboid(
-        [chip_length, chip_width, chip_thickness],
+        [chip_length, chip_width + tolerance * 2, chip_thickness],
         align = V_RIGHT + V_BOTTOM
       );
       // usb fit holes
