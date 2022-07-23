@@ -11,10 +11,10 @@ else
   exit 1
 fi
 
-mkdir -p $LIBS
+mkdir -p "$LIBS"
 
-rm -rf $LIBS/BOSL
-mkdir -p $LIBS/BOSL
-curl -sSL https://github.com/revarbat/BOSL/archive/v1.0.1.tar.gz | \
+rm -rf "$LIBS"/BOSL
+mkdir -p "$LIBS"/BOSL
+curl -sSL https://github.com/revarbat/BOSL/archive/v1.0.3.tar.gz | \
   gunzip | \
-  tar --extract --directory $LIBS/BOSL --strip-components 1
+  tar --extract --directory "$LIBS"/BOSL --strip-components 1
