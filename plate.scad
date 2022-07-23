@@ -19,7 +19,7 @@ function hole_spacing_x() = hole_spacing_x;
 hole_d = screw_d + 0.8;
 function hole_d() = hole_d;
 
-module hole(thickness = plate_thickness) {
+module hole(thickness) {
   translate([0, 0, -e])
   zcyl(
     h = thickness + 2 * e,
@@ -34,9 +34,9 @@ module at_holes() {
     children();
 }
 
-module holes() {
+module holes(thickness) {
   at_holes()
-    hole();
+    hole(thickness);
 }
 
 module screw_cap(height = screw_cap_h, threshold = 0) {
@@ -69,14 +69,14 @@ module screw_cap_2_clearance() {
 
 rounding = 5;
 
-module plate() {
+module plate(thickness = plate_thickness) {
   difference() {
     cuboid(
-      [plate_width, plate_height, plate_thickness],
+      [plate_width, plate_height, thickness],
       align = V_UP,
       fillet = rounding,
       edges = EDGES_Z_ALL
     );
-    holes();
+    holes(thickness);
   }
 }
