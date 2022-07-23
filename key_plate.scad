@@ -113,7 +113,7 @@ module battery_attach() {
 
 module key_plate() {
   difference() {
-    union () {
+    union() {
       plate();
       supports();
       pads();
