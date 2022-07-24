@@ -117,15 +117,11 @@ module key_plate() {
       plate();
       supports();
       pads();
-      battery_attach()
-        holder(CR2032, max_thickness = key_max_thickness);
     }
     {
       cutouts();
       all_notches();
       screw_cap_2_clearance();
-      battery_attach()
-        switch_cutout(CR2032);
     }
   }
   // enable to see screw caps
