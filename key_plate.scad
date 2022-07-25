@@ -14,6 +14,12 @@ use <plate.scad>
 $fa = 1;
 $fs = 0.2;
 
+ends_thickness = 3;
+
+spine_height = 10;
+
+middle_thickness_diff = ends_thickness - plate_thickness;
+
 module support(key) {
   inset = key[KEY_SUPPORT_INSET];
   x = key[KEY_LENGTH] + hole_x;
@@ -27,7 +33,7 @@ module support(key) {
 
   translate([x - plate_width / 2, length - y, plate_thickness - e])
     cuboid(
-      [width, length, key_max_thickness + e],
+      [width, length, key_max_thickness + middle_thickness_diff + e],
       align = V_RIGHT + V_FWD + V_UP,
       fillet = rounding,
       edges = EDGES_Z_ALL
@@ -47,7 +53,7 @@ module pad(key) {
 
   xflip()
   yflip()
-  translate([plate_width / 2 - hole_x, plate_height / 2 - hole_y(), plate_thickness - e])
+  translate([plate_width / 2 - hole_x, plate_height / 2 - hole_y(), ends_thickness - e])
     tube(
       h = key[KEY_THICKNESS] <= 0 ? key_max_thickness : key_max_thickness - key[KEY_THICKNESS],
       id = screw_d,
@@ -57,11 +63,14 @@ module pad(key) {
     );
 }
 
+module y_pads(key1, key2) {
+  pad(key1);
+  yflip() pad(key2);
+}
+
 module pads() {
-  pad(key_L_D);
-  xflip() pad(key_R_D);
-  yflip() pad(key_L_U);
-  yflip() xflip() pad(key_R_U);
+  y_pads(key_L_D, key_L_U);
+  xflip() y_pads(key_R_D, key_R_U);
 }
 
 module plate_cutout(key1, key2) {
@@ -95,7 +104,7 @@ module notches(key) {
     yflip()
     for (i = [0 : count - 1])
     translate([-plate_width / 2 + start_x + interval * i, -plate_height / 2, 0])
-    cutout(interval / 2, depth, rounding = rounding);
+    cutout(interval / 2, depth, rounding = rounding, thickness = ends_thickness);
 }
 
 module all_notches() {
@@ -111,10 +120,23 @@ module battery_attach() {
     children();
 }
 
+module plate_with_reinforcement() {
+  difference() {
+    plate(thickness = ends_thickness);
+    translate([0, 0, plate_thickness - e])
+      yflip_copy()
+      translate([0, -spine_height / 2, 0])
+      cuboid(
+        [plate_width - hole_x * 4, (plate_height - spine_height) / 2 + e, middle_thickness_diff + 2 * e],
+        align = V_UP + V_FWD
+      );
+  }
+}
+
 module key_plate() {
   difference() {
     union() {
-      plate();
+      plate_with_reinforcement();
       supports();
       pads();
     }
