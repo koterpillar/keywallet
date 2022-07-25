@@ -49,7 +49,7 @@ module pad(key) {
   yflip()
   translate([plate_width / 2 - hole_x, plate_height / 2 - hole_y(), plate_thickness - e])
     tube(
-      h = key_max_thickness - key[KEY_THICKNESS],
+      h = key[KEY_THICKNESS] <= 0 ? key_max_thickness : key_max_thickness - key[KEY_THICKNESS],
       id = screw_d,
       od = width,
       od2 = width - chamfer,
