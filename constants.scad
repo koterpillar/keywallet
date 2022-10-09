@@ -25,10 +25,6 @@ hole_x = 5;
 slant_angle = 70;
 function slant(depth) = depth / tan(slant_angle);
 
-plate_border = 5;
-thin_thickness = 0.6;
-thin_chamfer = 2;
-
 cut_width = 0.6;
 
 card_width_t = card_width + 2 * card_tolerance;

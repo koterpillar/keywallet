@@ -13,21 +13,27 @@ use <plate.scad>
 $fa = 1;
 $fs = 0.2;
 
+plate_thinning_border = 5;
+plate_thinning_chamfer = 2;
+plate_thinning_thickness = 0.6;
+
+top_plate_thickness = 1.2;
+
 assert(card_width_t <= plate_width - 2 * hole_x - screw_cap_side,
   "Not enough space for card box between screws");
 
 module plate_thinning() {
-  thinning_width = card_width_t + 2 * card_wall - 2 * plate_border;
-  thinning_height = card_height_t + 2 * card_wall - 2 * plate_border;
+  thinning_width = card_width_t + 2 * card_wall - 2 * plate_thinning_border;
+  thinning_height = card_height_t + 2 * card_wall - 2 * plate_thinning_border;
 
-  thinning_width_inner = thinning_width - 2 * thin_chamfer;
-  thinning_height_inner = thinning_height - 2 * thin_chamfer;
+  thinning_width_inner = thinning_width - 2 * plate_thinning_chamfer;
+  thinning_height_inner = thinning_height - 2 * plate_thinning_chamfer;
 
-  translate([0, 0, thin_thickness])
+  translate([0, 0, plate_thinning_thickness])
   prismoid(
     size1 = [thinning_width_inner, thinning_height_inner],
     size2 = [thinning_width, thinning_height],
-    h = plate_thickness - thin_thickness + e,
+    h = plate_thickness - plate_thinning_thickness + e,
     align = V_UP
     );
 }
@@ -35,7 +41,7 @@ module plate_thinning() {
 card_box_width = card_width_t + 2 * card_wall;
 card_box_width_base = card_width_t + 2 * card_wall_base;
 card_box_height = card_height_t + 2 * card_wall;
-card_box_thickness = cards_thickness + thin_thickness;
+card_box_thickness = cards_thickness + top_plate_thickness;
 
 module alignment_notch(position) {
   thickness = 0.7;
@@ -94,7 +100,7 @@ module card_plate_top() {
           rounded_prismoid(
             size1 = [card_box_width_base, card_box_height],
             size2 = [card_box_width, card_box_height],
-            h = cards_thickness + thin_thickness,
+            h = cards_thickness + top_plate_thickness,
             align = V_UP,
             r = card_wall
           );
@@ -119,7 +125,7 @@ module card_plate_top() {
           translate([retainer_width / 2, plate_height / 2, 0])
           cut_in(
             height = retainer_depth,
-            thickness = cards_thickness + thin_thickness
+            thickness = cards_thickness + top_plate_thickness
           );
         // remove walls except for the retainer
         xflip_copy()
@@ -181,7 +187,7 @@ module card_plate_print() {
   ydistribute(spacing = plate_height + 20) {
     card_plate_bottom();
     xrot(180)
-      translate([0, 0, -plate_thickness - cards_thickness - thin_thickness + e / 2])
+      translate([0, 0, -plate_thickness - cards_thickness - top_plate_thickness + e / 2])
       card_plate_top();
   }
 }
