@@ -31,6 +31,7 @@ module alignment_notch(position, tolerance_h) {
 TEST_SZ = 10;
 TEST_GAP = 1;
 TEST_SPACING = TEST_SZ + TEST_GAP;
+TEST_ADHESION_THICKNESS = 0.2;
 
 NOTCH_SZ_Y = 1;
 NOTCH_SZ_X = 0.6;
@@ -38,7 +39,11 @@ NOTCH_GAP = 0.6;
 
 module test_plate(idx) {
   difference() {
-    cuboid([TEST_SZ, TEST_SZ, plate_thickness], align = V_DOWN);
+    union() {
+      cuboid([TEST_SZ, TEST_SZ, plate_thickness], align = V_DOWN);
+      translate([0, 0, -plate_thickness])
+        cuboid([TEST_SZ + NOTCH_GAP * 2, TEST_SZ, TEST_ADHESION_THICKNESS], align = V_UP);
+    }
     translate([0, -TEST_SZ / 2 + NOTCH_SZ_Y / 2, 2 * e])
         xspread(spacing = NOTCH_SZ_X + NOTCH_GAP, n = idx + 1)
             cuboid([NOTCH_SZ_X, NOTCH_SZ_Y + e, plate_thickness + 4 * e], align = V_DOWN);
