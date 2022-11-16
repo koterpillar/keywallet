@@ -162,8 +162,9 @@ module card_plate_bottom() {
   // color("red", 0.5) screw_cap();
 }
 
-module card_plate() {
-  card_plate_top();
+module card_plate(gap = 0) {
+  translate([0, 0, gap])
+    card_plate_top();
   card_plate_bottom();
 }
 
