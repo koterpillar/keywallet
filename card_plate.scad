@@ -6,7 +6,6 @@ use <BOSL/transforms.scad>
 include <environment.scad>
 use <utils.scad>
 include <constants.scad>
-use <alignment_notch.scad>
 
 use <cutout.scad>
 use <plate.scad>
@@ -43,13 +42,6 @@ card_box_width = card_width_t + 2 * card_wall;
 card_box_width_base = card_width_t + 2 * card_wall_base;
 card_box_height = card_height_t + 2 * card_wall;
 card_box_thickness = cards_thickness + top_plate_thickness;
-
-module alignment_notches(position) {
-  xyflip_copy()
-    translate([card_box_width / 2 - card_wall / 2, 25, plate_thickness])
-    zflip()
-    alignment_notch(position);
-}
 
 cut_in_rounding = 3;
 
@@ -130,8 +122,6 @@ module card_plate_top() {
       }
     }
   }
-
-  alignment_notches(POSITION_POSITIVE);
 }
 
 module card_plate_bottom() {
@@ -142,7 +132,6 @@ module card_plate_bottom() {
     union() {
       screw_cap_clearance();
       plate_thinning();
-      alignment_notches(POSITION_NEGATIVE);
     }
   }
   // more walls
