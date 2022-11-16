@@ -67,4 +67,4 @@ module test(idx, tolerance_h) {
   translate([0, -TEST_SPACING / 2, 0]) test_pos(idx = idx, tolerance_h = tolerance_h);
 }
 
-xspread(spacing = TEST_SPACING, n = 8) test(idx = $idx, tolerance_h = -0.2 + $idx * 0.1);
+xspread(spacing = TEST_SPACING, n = 8) test(idx = $idx, tolerance_h = -0.4 + $idx * 0.2);
