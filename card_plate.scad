@@ -38,6 +38,8 @@ module plate_thinning() {
     );
 }
 
+card_wall_base = 5;
+
 card_box_width = card_width_t + 2 * card_wall;
 card_box_width_base = card_width_t + 2 * card_wall_base;
 card_box_height = card_height_t + 2 * card_wall;
