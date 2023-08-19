@@ -63,6 +63,13 @@ cards_space_max = cards_thickness - cards_thickness_min;
 retainer_width = 30;
 retainer_depth = 20;
 
+glue_pin_x = card_width_t / 2 + (card_wall_base - card_wall) / 2;
+glue_pin_y = card_height_t / 2 - 4;
+glue_pin_depth = 0.6;
+glue_pin_r = 1.2;
+glue_pin_tolerance = 0.4;
+glue_pin_tolerance_depth = 0.2;
+
 module card_plate_top() {
   push_cutout_width = 35;
   push_cutout_depth = 15;
@@ -89,6 +96,13 @@ module card_plate_top() {
               align = V_UP
             );
         }
+        xyflip_copy()
+          translate([glue_pin_x, glue_pin_y, e])
+          cyl(
+            r = glue_pin_r - glue_pin_tolerance / 4,
+            h = glue_pin_depth - glue_pin_tolerance_depth / 2,
+            align = V_DOWN
+          );
       }
       union() {
         // cutout for pushing cards out
@@ -134,6 +148,13 @@ module card_plate_bottom() {
     union() {
       screw_cap_clearance();
       plate_thinning();
+        xyflip_copy()
+          translate([glue_pin_x, glue_pin_y, plate_thickness + e])
+          cyl(
+            r = glue_pin_r + glue_pin_tolerance / 4,
+            h = glue_pin_depth + glue_pin_tolerance_depth / 2,
+            align = V_DOWN
+          );
     }
   }
   // more walls
