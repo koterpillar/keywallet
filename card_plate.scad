@@ -65,10 +65,20 @@ retainer_depth = 20;
 
 glue_pin_x = card_width_t / 2 + (card_wall_base - card_wall) / 2;
 glue_pin_y = card_height_t / 2 - 4;
-glue_pin_depth = 0.6;
+glue_pin_depth = 1;
 glue_pin_r = 1.2;
 glue_pin_tolerance = 0.4;
 glue_pin_tolerance_depth = 0.2;
+
+module glue_pin(position) {
+  xyflip_copy()
+    translate([glue_pin_x, glue_pin_y, position * e])
+    cyl(
+      r = glue_pin_r - position * glue_pin_tolerance / 4,
+      h = glue_pin_depth - position * glue_pin_tolerance_depth / 2,
+      align = V_UP
+    );
+}
 
 module card_plate_top() {
   push_cutout_width = 35;
@@ -96,13 +106,6 @@ module card_plate_top() {
               align = V_UP
             );
         }
-        xyflip_copy()
-          translate([glue_pin_x, glue_pin_y, e])
-          cyl(
-            r = glue_pin_r - glue_pin_tolerance / 4,
-            h = glue_pin_depth - glue_pin_tolerance_depth / 2,
-            align = V_DOWN
-          );
       }
       union() {
         // cutout for pushing cards out
@@ -135,6 +138,8 @@ module card_plate_top() {
         // cutouts for screws
         translate([0, 0, -plate_thickness])
           screw_cap_clearance();
+        // cutout for glue pin
+        glue_pin(position=POSITION_NEGATIVE);
       }
     }
   }
@@ -144,17 +149,13 @@ module card_plate_bottom() {
   difference() {
     union() {
       plate();
+      // glue pin
+      translate([0, 0, plate_thickness])
+        glue_pin(position=POSITION_POSITIVE);
     }
     union() {
       screw_cap_clearance();
       plate_thinning();
-        xyflip_copy()
-          translate([glue_pin_x, glue_pin_y, plate_thickness + e])
-          cyl(
-            r = glue_pin_r + glue_pin_tolerance / 4,
-            h = glue_pin_depth + glue_pin_tolerance_depth / 2,
-            align = V_DOWN
-          );
     }
   }
   // more walls
