@@ -63,18 +63,20 @@ cards_space_max = cards_thickness - cards_thickness_min;
 retainer_width = 30;
 retainer_depth = 20;
 
+glue_tolerance = 0.3;
+
 glue_pin_x = card_width_t / 2 + (card_wall_base - card_wall) / 2;
-glue_pin_y = card_height_t / 2 - 4;
+glue_pin_ys = [7, card_height_t / 2 - 4];
 glue_pin_depth = 1;
 glue_pin_r = 1.2;
-glue_pin_tolerance = 0.4;
 glue_pin_tolerance_depth = 0.2;
 
 module glue_pin(position) {
   xyflip_copy()
+    for(glue_pin_y = glue_pin_ys)
     translate([glue_pin_x, glue_pin_y, position * e])
     cyl(
-      r = glue_pin_r - position * glue_pin_tolerance / 4,
+      r = glue_pin_r - position * glue_tolerance / 4,
       h = glue_pin_depth - position * glue_pin_tolerance_depth / 2,
       align = V_UP
     );
@@ -165,7 +167,7 @@ module card_plate_bottom() {
     translate([xi, plate_height / 2 + e, plate_thickness - e])
       difference() {
         cuboid(
-          [card_width_t / 2 - xi, card_wall + 2 * e, h],
+          [card_width_t / 2 - xi - glue_tolerance, card_wall + 2 * e, h],
           align = V_UP + V_FWD + V_RIGHT
         );
         fillet_mask(l = h, r = cut_in_rounding, align = V_UP);
@@ -179,6 +181,12 @@ module card_plate(gap = 0) {
   translate([0, 0, gap])
     card_plate_top();
   card_plate_bottom();
+}
+
+module comment(a=0, b=0) {
+  translate([0, -40, 0]) cuboid([150, 90, 20]);
+  if (a) { cuboid([70, 40, 20]); }
+  if (b) { translate([0, 20, 0]) cuboid([70, 20, 20]); }
 }
 
 module card_plate_print() {
