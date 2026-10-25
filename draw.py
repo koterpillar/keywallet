@@ -3,7 +3,7 @@
 import argparse
 
 from shapes import MARGIN, Pane
-from svgprint import make_svg, print_sheet
+from render import make_svg, make_html
 
 A4 = (210, 297)
 
@@ -48,10 +48,8 @@ def main():
             case _:
                 raise ValueError(f"Unknown part: {part}")
 
-    svg = make_svg(A4, shapes)
-    with open("output.svg", "w") as f:
-        f.write(svg)
-    print_sheet(svg, A4, auto_print=args.print)
+    with make_svg(A4, shapes) as svg_path:
+        make_html(svg_path, A4, auto_print=args.print)
 
 
 if __name__ == "__main__":

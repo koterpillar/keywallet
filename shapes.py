@@ -3,7 +3,7 @@
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 
-from svgprint import SVG_NS
+from render import SVG_NS
 
 
 @dataclass
