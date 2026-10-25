@@ -16,14 +16,14 @@ class Rect:
 
     def add_to(self, svg: ET.Element) -> None:
         ET.SubElement(svg, f"{{{SVG_NS}}}rect", {
-            "x": str(self.x), "y": str(self.y),
-            "width": str(self.w), "height": str(self.h),
-            "fill": "none", "stroke": "black", "stroke-width": "0.2",
+            "x": f"{self.x}mm", "y": f"{self.y}mm",
+            "width": f"{self.w}mm", "height": f"{self.h}mm",
+            "fill": "none", "stroke": "black", "stroke-width": "0.2mm",
         })
         if self.label:
             t = ET.SubElement(svg, f"{{{SVG_NS}}}text", {
-                "x": str(self.x + self.w / 2), "y": str(self.y + self.h / 2),
-                "font-size": "3", "text-anchor": "middle",
+                "x": f"{self.x + self.w / 2}mm", "y": f"{self.y + self.h / 2}mm",
+                "font-size": "3mm", "text-anchor": "middle",
                 "dominant-baseline": "middle",
             })
             t.text = self.label

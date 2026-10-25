@@ -1,23 +1,31 @@
-"""Draw rectangles (dimensions in mm) into a printable A4 sheet."""
+"""Draw rectangles (dimensions in mm) into an SVG sheet."""
 
 import argparse
+import subprocess
+import tempfile
+import time
 
-from render import make_html, make_svg
+from render import make_svg
 from shapes import MARGIN, Pane
-
-A4 = (210, 297)
-
 
 INNER_WIDTH = 100
 TOTAL_HEIGHT = 80
 
 
+def xdg_open_temp(contents: str, suffix: str) -> None:
+    with tempfile.NamedTemporaryFile("w", suffix=suffix) as f:
+        f.write(contents)
+        subprocess.run(["xdg-open", f.name], check=True)
+        # closing deletes the file; give async viewers time to read it first
+        time.sleep(5)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--print", action="store_true",
-                        help="open the print dialog automatically")
     parser.add_argument("--part", choices=("outer", "inner"), required=True,
                         help="which part to draw")
+    parser.add_argument("-o", "--output",
+                        help="write the SVG to this path instead of opening it")
     args = parser.parse_args()
 
     shapes = []
@@ -35,18 +43,23 @@ def main():
             shape(h=1)
             shape(h=60, label="1")
             shape(h=11)
-            shape(h=TOTAL_HEIGHT, label="6")
+            shape(h=80, label="6")
             shape(h=6)
             shape(h=50, label="3б", bottom=True)
         case "inner":
             shape(h=20, label="3а", top=True)
             shape(h=3)
-            shape(h=TOTAL_HEIGHT, label="5")
+            shape(h=80, label="5")
             shape(h=2)
             shape(h=65, label="4", bottom=True)
 
-    with make_svg(A4, shapes) as svg_path:
-        make_html(svg_path, A4, auto_print=args.print)
+    svg = make_svg(shapes)
+    if args.output:
+        with open(args.output, "w", encoding="utf-8") as f:
+            f.write(svg)
+        print(f"wrote {args.output}")
+    else:
+        xdg_open_temp(svg, ".svg")
 
 
 if __name__ == "__main__":
