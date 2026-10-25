@@ -5,25 +5,28 @@ import subprocess
 import tempfile
 import time
 
-from render import make_svg
+from render import make_pdf, make_svg
 from shapes import MARGIN, Pane
 
 INNER_WIDTH = 100
 TOTAL_HEIGHT = 80
 
 
-def xdg_open_temp(contents: str, suffix: str) -> None:
-    with tempfile.NamedTemporaryFile("w", suffix=suffix) as f:
+def xdg_open_temp(contents: bytes, suffix: str) -> None:
+    with tempfile.NamedTemporaryFile("wb", suffix=suffix) as f:
         f.write(contents)
-        subprocess.run(["xdg-open", f.name], check=True)
+        f.flush()
+        subprocess.run(["xdg-open", f.name])
         # closing deletes the file; give async viewers time to read it first
-        time.sleep(5)
+        time.sleep(2)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--part", choices=("outer", "inner"), required=True,
                         help="which part to draw")
+    parser.add_argument("--pdf", action="store_true",
+                        help="convert to PDF (ImageMagick) before opening/saving")
     parser.add_argument("-o", "--output",
                         help="write the SVG to this path instead of opening it")
     args = parser.parse_args()
@@ -53,13 +56,19 @@ def main():
             shape(h=2)
             shape(h=65, label="4", bottom=True)
 
-    svg = make_svg(shapes)
+    if args.pdf:
+        contents = make_pdf(shapes)
+        suffix = ".pdf"
+    else:
+        contents = make_svg(shapes)
+        suffix = ".svg"
+
     if args.output:
-        with open(args.output, "w", encoding="utf-8") as f:
-            f.write(svg)
+        with open(args.output, "wb") as f:
+            f.write(contents)
         print(f"wrote {args.output}")
     else:
-        xdg_open_temp(svg, ".svg")
+        xdg_open_temp(contents, suffix)
 
 
 if __name__ == "__main__":
