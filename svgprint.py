@@ -24,16 +24,17 @@ def make_svg(sheet: tuple[float, float], shapes: list[Shape]) -> str:
     return ET.tostring(svg, encoding="unicode")
 
 
-def print_sheet(svg: str, sheet: tuple[float, float]) -> None:
+def print_sheet(svg: str, sheet: tuple[float, float], auto_print: bool = False) -> None:
     # @page sets the sheet size so the browser prints at 1:1 without scaling.
+    script = "<script>window.print()</script>" if auto_print else ""
     html = (
         f"<!doctype html><style>@page {{ size: {sheet[0]}mm {sheet[1]}mm; margin: 0; }}"
         f"body {{ margin: 0; }}</style>"
-        f"{svg}<script>window.print()</script>"
+        f"{svg}{script}"
     )
     html_path = "print.html"
     with open(html_path, "w") as f:
         f.write(html)
-    print("opening print dialog...")
+    print("opening browser...")
     here = os.path.dirname(os.path.abspath(__file__))
     webbrowser.open(f"file://{here}/{html_path}")
