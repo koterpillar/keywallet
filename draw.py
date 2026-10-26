@@ -12,8 +12,6 @@ from shapes import MARGIN, Pane
 INNER_WIDTH = 100
 TOTAL_HEIGHT = 80
 
-# printer shrink compensation: printed test measured 119/120 and 286/288 of expected
-PRINT_SCALE = 1.0077
 
 def open_temp(contents: bytes, suffix: str) -> None:
     match platform.system():
@@ -72,7 +70,7 @@ def main():
         print(f"{w:g} x {h:g} mm")
         return
 
-    svg = make_svg(shapes, scale=PRINT_SCALE)
+    svg = make_svg(shapes)
     if args.output:
         with open(args.output, "wb") as f:
             f.write(svg)
