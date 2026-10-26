@@ -1,6 +1,7 @@
 """Draw rectangles (dimensions in mm) into an SVG sheet."""
 
 import argparse
+import platform
 import subprocess
 import tempfile
 import time
@@ -14,12 +15,19 @@ TOTAL_HEIGHT = 80
 # printer shrink compensation: printed test measured 119/120 and 286/288 of expected
 PRINT_SCALE = 1.0077
 
+def open_temp(contents: bytes, suffix: str) -> None:
+    match platform.system():
+        case "Linux":
+            open_cmd = "xdg-open"
+        case "Darwin":
+            open_cmd = "open"
+        case unknown_platform:
+            raise ValueError(f"Don't know how to open files on {unknown_platform}.")
 
-def xdg_open_temp(contents: bytes, suffix: str) -> None:
     with tempfile.NamedTemporaryFile("wb", suffix=suffix) as f:
         f.write(contents)
         f.flush()
-        subprocess.run(["xdg-open", f.name], check=True)
+        subprocess.run([open_cmd, f.name], check=True)
         # closing deletes the file; give async viewers time to read it first
         time.sleep(2)
 
@@ -70,7 +78,7 @@ def main():
             f.write(svg)
         print(f"wrote {args.output}")
     else:
-        xdg_open_temp(svg, ".svg")
+        open_temp(svg, ".svg")
 
 
 if __name__ == "__main__":
